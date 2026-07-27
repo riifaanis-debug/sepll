@@ -168,10 +168,6 @@ export function CollectorDashboard({
 
       {/* ============ Card 2: Portfolio Overview ============ */}
       <div className={cardCls}>
-        {/* Previous Requests */}
-
-
-        {/* Previous Requests */}
         <button
           type="button"
           onClick={() => onSelectAction("sibel")}
