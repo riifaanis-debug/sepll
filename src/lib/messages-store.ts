@@ -1,4 +1,3 @@
-import collectors from "@/data/collectors.json";
 import { supabase } from "@/integrations/supabase/client";
 
 export type Attachment = {
@@ -27,7 +26,7 @@ export const COLLECTORS_EXTRA_KEY = "wallet:collectors:extra";
 export type Collector = { supervisor: string; collector: string; employeeId: string };
 
 export function getAllCollectors(): Collector[] {
-  const base = collectors as Collector[];
+  const base: Collector[] = [];
   let extra: Collector[] = [];
   if (typeof window !== "undefined") {
     try {
