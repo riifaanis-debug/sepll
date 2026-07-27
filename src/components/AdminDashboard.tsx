@@ -28,18 +28,15 @@ import {
   KeyRound,
   ImagePlus,
 } from "lucide-react";
-import PermissionsPanel from "@/components/PermissionsPanel";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useWallet } from "@/lib/wallet-store";
-import collectors from "@/data/collectors.json";
 import { formatCurrency, type Customer } from "@/lib/wallet-types";
 import { RequestsUploadPanel, WalletChangesPanel } from "@/components/AdminPanels";
 import MappingReview, { loadDefaultMapping } from "@/components/MappingReview";
 import { detectMapping } from "@/lib/mapping-engine";
 import { canonicalToCustomer } from "@/lib/canonical-to-customer";
-import { clearSession, DISABLED_KEY } from "@/components/LoginGate";
 import { useServerFn } from "@tanstack/react-start";
-import { getCollectorsStats } from "@/lib/collectors-stats.functions";
 import { clearWalletCustomers } from "@/lib/wallet-write.functions";
 import {
   listWalletBackups,
@@ -49,10 +46,6 @@ import {
 import { Archive, RotateCcw, Building2 } from "lucide-react";
 import { replaceRfCustomers, clearRfCustomers, getRfCustomers } from "@/lib/rf-wallet.functions";
 
-type Collector = { supervisor: string; collector: string; employeeId: string };
-const BASE_COLLECTORS = collectors as Collector[];
-
-const EXTRA_KEY = "wallet:collectors:extra";
 const REQ_KEY = "wallet:thirdparty:requests";
 const PHOTO_KEY = "wallet:collectors:photos";
 
@@ -76,7 +69,7 @@ type ThirdPartyReq = {
   body: string;
 };
 
-type Tab = "home" | "wallet" | "requests-file" | "changes" | "members" | "requests" | "collectors" | "permissions" | "backups" | "rf-wallet";
+type Tab = "home" | "wallet" | "requests-file" | "changes" | "requests" | "backups" | "rf-wallet";
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState<Tab>("home");
@@ -102,25 +95,16 @@ export default function AdminDashboard() {
 
               {tab === "requests-file" && "إضافة ملف الطلبات"}
               {tab === "changes" && "إضافة تغييرات على المحفظة الحالية"}
-              {tab === "members" && "إضافة أعضاء في القروب"}
               {tab === "requests" && "طلبات إرسال العملاء للطرف الثالث"}
-              {tab === "collectors" && "بيانات المحصلين"}
-              {tab === "permissions" && "صلاحيات المحصلين"}
               {tab === "backups" && "النسخ الاحتياطية للمحافظ"}
               {tab === "rf-wallet" && "إضافة محفظة عملاء العقار (RF)"}
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              clearSession();
-              toast.success("تم تسجيل الخروج");
-            }}
-            className="gap-1.5 shrink-0"
-          >
-            <LogOut className="size-4" />
-            <span className="hidden sm:inline">تسجيل خروج</span>
+          <Button asChild variant="outline" size="sm" className="gap-1.5 shrink-0">
+            <Link to="/">
+              <ArrowRight className="size-4" />
+              <span className="hidden sm:inline">المحفظة</span>
+            </Link>
           </Button>
         </div>
       </header>
@@ -130,10 +114,7 @@ export default function AdminDashboard() {
         {tab === "wallet" && <WalletUploadPanel />}
         {tab === "requests-file" && <RequestsUploadPanel />}
         {tab === "changes" && <WalletChangesPanel />}
-        {tab === "members" && <MembersPanel />}
         {tab === "requests" && <RequestsPanel />}
-        {tab === "collectors" && <CollectorsDataPanel />}
-        {tab === "permissions" && <PermissionsPanel />}
         {tab === "backups" && <BackupsPanel />}
         {tab === "rf-wallet" && <RfWalletUploadPanel />}
       </main>
@@ -173,29 +154,11 @@ function HomeGrid({ onSelect }: { onSelect: (t: Tab) => void }) {
       icon: RefreshCw,
     },
     {
-      id: "members",
-      title: "إضافة أعضاء في القروب",
-      desc: "تفعيل المحصلين للوصول إلى القروب",
-      icon: UserPlus,
-    },
-    {
       id: "requests",
       title: "استقبال طلبات الطرف الثالث",
       desc: "مراجعة الطلبات المقدمة من المحصلين",
       icon: Inbox,
       badge: pendingCount,
-    },
-    {
-      id: "collectors",
-      title: "بيانات المحصلين",
-      desc: "عرض المحصلين وإحصائياتهم وتمكين/إغلاق الدخول",
-      icon: Users,
-    },
-    {
-      id: "permissions",
-      title: "صلاحيات المحصلين",
-      desc: "التحكم بصلاحيات العرض والحساب والتصدير والإدارة",
-      icon: KeyRound,
     },
     {
       id: "backups",
@@ -698,105 +661,6 @@ function StatBox({ label, value }: { label: string; value: string }) {
   );
 }
 
-function MembersPanel() {
-  const [extras, setExtras] = useState<Collector[]>([]);
-  const [group, setGroup] = useState<string[]>([]);
-  const [q, setQ] = useState("");
-  const [busy, setBusy] = useState<string | null>(null);
-
-  useEffect(() => {
-    try {
-      setExtras(JSON.parse(localStorage.getItem(EXTRA_KEY) || "[]"));
-    } catch {}
-    import("@/lib/messages-store").then(({ fetchGroupMembers }) => {
-      fetchGroupMembers()
-        .then(setGroup)
-        .catch(() => {});
-    });
-  }, []);
-
-  const all = useMemo(() => {
-    const map = new Map<string, Collector>();
-    [...BASE_COLLECTORS, ...extras].forEach((c) => map.set(c.employeeId, c));
-    return Array.from(map.values());
-  }, [extras]);
-
-  const filtered = useMemo(() => {
-    const t = q.trim();
-    if (!t) return all;
-    return all.filter(
-      (c) => c.collector.includes(t) || c.supervisor.includes(t) || c.employeeId.includes(t),
-    );
-  }, [all, q]);
-
-  const toggle = async (eid: string) => {
-    const { addGroupMember, removeGroupMember } = await import("@/lib/messages-store");
-    setBusy(eid);
-    try {
-      if (group.includes(eid)) {
-        await removeGroupMember(eid);
-        setGroup((g) => g.filter((x) => x !== eid));
-      } else {
-        await addGroupMember(eid);
-        setGroup((g) => Array.from(new Set([...g, eid])));
-      }
-    } catch (e: any) {
-      toast.error("تعذّر التحديث: " + (e?.message ?? ""));
-    } finally {
-      setBusy(null);
-    }
-  };
-
-  return (
-    <div className="space-y-3">
-      <Card className="p-3 space-y-2">
-        <div className="text-xs text-muted-foreground">
-          فعّل المحصلين الذين تريد إضافتهم إلى القروب. المحصل المفعّل فقط يمكنه فتح خانة القروب.
-        </div>
-        <Input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="ابحث بالاسم أو الرقم الوظيفي…"
-          className="h-9"
-        />
-        <div className="text-[11px] text-muted-foreground">
-          أعضاء القروب:{" "}
-          <span className="font-bold text-foreground tabular-nums">{group.length}</span> /{" "}
-          {all.length}
-        </div>
-      </Card>
-      <Card className="p-2 max-h-[60vh] overflow-y-auto">
-        <ul className="divide-y">
-          {filtered.map((c) => {
-            const inGroup = group.includes(c.employeeId);
-            return (
-              <li key={c.employeeId} className="flex items-center gap-3 py-2 px-2">
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium truncate">{c.collector}</div>
-                  <div className="text-[11px] text-muted-foreground truncate">
-                    {c.supervisor} · <span className="tabular-nums">{c.employeeId}</span>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  variant={inGroup ? "default" : "outline"}
-                  onClick={() => toggle(c.employeeId)}
-                  disabled={busy === c.employeeId}
-                >
-                  {inGroup ? "في القروب ✓" : "إضافة"}
-                </Button>
-              </li>
-            );
-          })}
-          {filtered.length === 0 && (
-            <li className="py-6 text-center text-sm text-muted-foreground">لا توجد نتائج</li>
-          )}
-        </ul>
-      </Card>
-    </div>
-  );
-}
-
 function RequestsPanel() {
   const [items, setItems] = useState<ThirdPartyReq[]>([]);
   const [open, setOpen] = useState<ThirdPartyReq | null>(null);
@@ -938,282 +802,6 @@ function StatusPill({ status }: { status: ThirdPartyReq["status"] }) {
     >
       <Icon className="size-3" /> {m.label}
     </span>
-  );
-}
-
-// ============ Collectors Data Panel ============
-
-type AggStat = {
-  employeeId: string;
-  accounts: number;
-  walletTotal: number;
-  promises: number;
-  exemptions: number;
-  reschedules: number;
-  collected: number;
-};
-
-const DISABLED_DEFAULT_VERSION = "v2-all-closed";
-const DISABLED_VERSION_KEY = "wallet:collectors:disabled:version";
-
-function loadDisabled(): string[] {
-  try {
-    const all = (BASE_COLLECTORS as Collector[]).map((c) => c.employeeId);
-    const version = localStorage.getItem(DISABLED_VERSION_KEY);
-    const raw = localStorage.getItem(DISABLED_KEY);
-    if (raw === null || version !== DISABLED_DEFAULT_VERSION) {
-      // الافتراضي: جميع المحصلين مغلق دخولهم حتى يتم تمكينهم يدويًا.
-      localStorage.setItem(DISABLED_KEY, JSON.stringify(all));
-      localStorage.setItem(DISABLED_VERSION_KEY, DISABLED_DEFAULT_VERSION);
-      return all;
-    }
-    const a = JSON.parse(raw);
-    return Array.isArray(a) ? a : all;
-  } catch {
-    return (BASE_COLLECTORS as Collector[]).map((c) => c.employeeId);
-  }
-}
-
-function CollectorsDataPanel() {
-  const fetchStats = useServerFn(getCollectorsStats);
-  const [stats, setStats] = useState<Record<string, AggStat>>({});
-  const [disabled, setDisabled] = useState<string[]>(loadDisabled());
-  const [q, setQ] = useState("");
-  const [open, setOpen] = useState<Collector | null>(null);
-  const [collectorPhotos, setCollectorPhotos] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(true);
-
-  const refresh = useCallback(async () => {
-    try {
-      const data = await fetchStats({ data: { employeeId: "666666" } });
-      const map: Record<string, AggStat> = {};
-      for (const s of data as AggStat[]) map[s.employeeId] = s;
-      setStats(map);
-    } catch (e: any) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchStats]);
-
-  useEffect(() => {
-    void refresh();
-    const id = setInterval(() => {
-      void refresh();
-    }, 8000);
-    return () => clearInterval(id);
-  }, [refresh]);
-
-  useEffect(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem(PHOTO_KEY) || "{}");
-      setCollectorPhotos(stored && typeof stored === "object" ? stored : {});
-    } catch {
-      setCollectorPhotos({});
-    }
-  }, []);
-
-  const saveCollectorPhoto = (employeeId: string, file: File) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const image = String(reader.result || "");
-      if (!image) return;
-      setCollectorPhotos((prev) => {
-        const next = { ...prev, [employeeId]: image };
-        localStorage.setItem(PHOTO_KEY, JSON.stringify(next));
-        return next;
-      });
-      toast.success("تم حفظ صورة المحصل");
-    };
-    reader.onerror = () => toast.error("تعذر قراءة الصورة");
-    reader.readAsDataURL(file);
-  };
-
-  const removeCollectorPhoto = (employeeId: string) => {
-    setCollectorPhotos((prev) => {
-      const next = { ...prev };
-      delete next[employeeId];
-      localStorage.setItem(PHOTO_KEY, JSON.stringify(next));
-      return next;
-    });
-    toast.success("تم حذف صورة المحصل");
-  };
-
-  const toggleDisabled = (eid: string) => {
-    const next = disabled.includes(eid) ? disabled.filter((x) => x !== eid) : [...disabled, eid];
-    setDisabled(next);
-    localStorage.setItem(DISABLED_KEY, JSON.stringify(next));
-    toast.success(next.includes(eid) ? "تم إغلاق دخول المحصل" : "تم تمكين دخول المحصل");
-  };
-
-  const list = useMemo(() => {
-    const t = q.trim();
-    let arr = BASE_COLLECTORS as Collector[];
-    if (t) {
-      arr = arr.filter(
-        (c) => c.collector.includes(t) || c.employeeId.includes(t) || c.supervisor.includes(t),
-      );
-    }
-    return [...arr].sort((a, b) => a.collector.localeCompare(b.collector, "ar"));
-  }, [q]);
-
-  const supervisorOf = (name: string) => BASE_COLLECTORS.find((c) => c.supervisor === name);
-
-  return (
-    <div className="space-y-3">
-      <Card className="p-3 space-y-2">
-        <div className="text-xs text-muted-foreground">
-          يتم تحديث البيانات تلقائيًا كل بضع ثوانٍ. اضغط على اسم المحصل لعرض تفاصيله، واستخدم زر
-          تمكين/إغلاق للتحكم في تسجيل الدخول.
-        </div>
-        <Input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="ابحث بالاسم أو الرقم الوظيفي…"
-          className="h-9"
-        />
-        <div className="text-[11px] text-muted-foreground flex items-center justify-between">
-          <span>
-            الإجمالي: <span className="font-bold text-foreground tabular-nums">{list.length}</span>
-          </span>
-          <span>{loading ? "جاري التحميل…" : `مغلق: ${disabled.length}`}</span>
-        </div>
-      </Card>
-
-      <Card className="p-0 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead className="bg-muted/50">
-              <tr className="text-right">
-                <th className="p-2 font-semibold">اسم المحصل</th>
-                <th className="p-2 font-semibold tabular-nums">الرقم الوظيفي</th>
-                <th className="p-2 font-semibold text-center">الحالة</th>
-              </tr>
-            </thead>
-            <tbody>
-              {list.map((c) => {
-                const isDisabled = disabled.includes(c.employeeId);
-                return (
-                  <tr key={c.employeeId} className="border-t hover:bg-accent/40">
-                    <td className="p-2">
-                      <button
-                        onClick={() => setOpen(c)}
-                        className="text-right font-medium text-primary hover:underline"
-                      >
-                        {c.collector}
-                      </button>
-                    </td>
-                    <td className="p-2 tabular-nums">{c.employeeId}</td>
-                    <td className="p-2 text-center">
-                      <Button
-                        size="sm"
-                        variant={isDisabled ? "destructive" : "outline"}
-                        onClick={() => toggleDisabled(c.employeeId)}
-                        className="h-7 px-2 text-[11px] gap-1"
-                      >
-                        {isDisabled ? (
-                          <>
-                            <Lock className="size-3" /> مغلق
-                          </>
-                        ) : (
-                          <>
-                            <Unlock className="size-3" /> ممكّن
-                          </>
-                        )}
-                      </Button>
-                    </td>
-                  </tr>
-                );
-              })}
-              {list.length === 0 && (
-                <tr>
-                  <td colSpan={3} className="py-6 text-center text-muted-foreground">
-                    لا توجد نتائج
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      <Dialog open={!!open} onOpenChange={(o) => !o && setOpen(null)}>
-        <DialogContent dir="rtl" className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-right">بيانات المحصل</DialogTitle>
-          </DialogHeader>
-          {open &&
-            (() => {
-              const s = stats[open.employeeId];
-              const sup = supervisorOf(open.supervisor);
-              const items = [
-                { l: "اسم المحصل", v: open.collector },
-                { l: "الرقم الوظيفي", v: open.employeeId },
-                { l: "اسم المشرف", v: open.supervisor },
-                { l: "الرقم الوظيفي للمشرف", v: sup?.employeeId || "—" },
-                { l: "عدد الحسابات في المحفظة", v: s ? s.accounts.toLocaleString("en-US") : "—" },
-                { l: "عدد وعود السداد", v: s ? String(s.promises) : "—" },
-                { l: "عدد طلبات الإعفاء", v: s ? String(s.exemptions) : "—" },
-                { l: "عدد طلبات الجدولة", v: s ? String(s.reschedules) : "—" },
-                { l: "المحقق حتى الآن", v: s ? formatCurrency(s.collected) : "—" },
-              ];
-              return (
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-3 rounded-md border p-3">
-                    <div className="size-20 overflow-hidden rounded-md border bg-muted grid place-items-center shrink-0">
-                      {collectorPhotos[open.employeeId] ? (
-                        <img
-                          src={collectorPhotos[open.employeeId]}
-                          alt={open.collector}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <ImagePlus className="size-8 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <div className="text-xs text-muted-foreground">صورة المحصل</div>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        className="h-9 text-xs"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) saveCollectorPhoto(open.employeeId, file);
-                          e.currentTarget.value = "";
-                        }}
-                      />
-                      {collectorPhotos[open.employeeId] && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="h-8 text-xs"
-                          onClick={() => removeCollectorPhoto(open.employeeId)}
-                        >
-                          حذف الصورة
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                  {items.map((it) => (
-                    <div
-                      key={it.l}
-                      className="flex items-center justify-between rounded-md border p-2"
-                    >
-                      <span className="text-muted-foreground text-xs">{it.l}</span>
-                      <span className="font-semibold tabular-nums">{it.v}</span>
-                    </div>
-                  ))}
-                  <div className="text-[10px] text-muted-foreground text-center pt-1">
-                    يتم تحديث البيانات تلقائيًا
-                  </div>
-                </div>
-              );
-            })()}
-        </DialogContent>
-      </Dialog>
-    </div>
   );
 }
 

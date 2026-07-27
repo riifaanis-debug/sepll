@@ -42,7 +42,6 @@ import {
   Lock,
   Coins,
   ChevronDown,
-  LogOut,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -75,7 +74,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { useWallet, useCustomerStates } from "@/lib/wallet-store";
-import { clearSession, getSession } from "@/components/LoginGate";
+import { getSession } from "@/components/LoginGate";
 import { usePermissions } from "@/hooks/use-permissions";
 import {
   isYesStrict,
@@ -83,7 +82,6 @@ import {
   isPromise,
   isExemptionRequest,
   isRescheduleRequest,
-  isOwnedByCollector,
 } from "@/lib/wallet-predicates";
 import {
   Dialog,
@@ -220,21 +218,7 @@ export default function WalletApp() {
   const { states, update, addLog } = useCustomerStates();
   const perms = usePermissions();
 
-  const customers = useMemo(() => {
-    const session = getSession();
-    if (!session) return [];
-    if (session.role === "collector") {
-      return rawCustomers.filter((c) =>
-        isOwnedByCollector(
-          (c as any)["ID AGENT"] ?? c["الرقم الوظيفي للمحصل"] ?? (c as any)["agent_employee_id"],
-          c["اسم المحصل"],
-          session.employeeId,
-          (session as any).name,
-        ),
-      );
-    }
-    return rawCustomers;
-  }, [rawCustomers]);
+  const customers = rawCustomers;
 
 
   const [q, setQ] = useState("");
@@ -497,15 +481,10 @@ export default function WalletApp() {
               e.target.value = "";
             }}
           />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={clearSession}
-            aria-label="تسجيل الخروج"
-            title="تسجيل الخروج"
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-          >
-            <LogOut className="size-5" />
+          <Button asChild variant="ghost" size="icon" aria-label="أدوات الرفع" title="أدوات الرفع">
+            <Link to="/admin">
+              <Upload className="size-5" />
+            </Link>
           </Button>
         </div>
       </header>

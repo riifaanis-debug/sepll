@@ -1,8 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import WalletApp from "@/components/WalletApp";
-import AdminDashboard from "@/components/AdminDashboard";
-import LoginGate, { getSession, type Session } from "@/components/LoginGate";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/")({
@@ -11,31 +8,24 @@ export const Route = createFileRoute("/")({
       { title: "إدارة محفظة العملاء — مايو 2026" },
       {
         name: "description",
-        content: "تطبيق لإدارة محفظة العملاء والتواصل معهم عبر الاتصال والواتساب.",
+        content: "تطبيق فردي لإدارة محفظة العملاء والتواصل معهم عبر الاتصال والواتساب.",
       },
+      { property: "og:title", content: "إدارة محفظة العملاء" },
+      {
+        property: "og:description",
+        content: "تطبيق فردي لإدارة محفظة العملاء ومتابعة التحصيل.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
 });
 
-function RoleSwitch() {
-  const [session, setSession] = useState<Session | null>(null);
-  useEffect(() => {
-    setSession(getSession());
-    const tick = () => setSession(getSession());
-    const id = setInterval(tick, 300);
-    return () => clearInterval(id);
-  }, []);
-  if (session?.role === "admin") return <AdminDashboard />;
-  return <WalletApp />;
-}
-
 function Index() {
   return (
     <>
-      <LoginGate>
-        <RoleSwitch />
-      </LoginGate>
+      <WalletApp />
       <Toaster position="top-center" richColors />
     </>
   );

@@ -45,7 +45,6 @@ export type QuickKey =
   | "sibel"
   | "rf";
 
-const RF_ALLOWED_EMPLOYEE_IDS = new Set(["973214"]);
 
 export function CollectorDashboard({
   collected,
@@ -84,7 +83,7 @@ export function CollectorDashboard({
   onSelectAction: (key: QuickKey) => void;
   onCollectedClick?: () => void;
 }) {
-  const showRfCard = !!employeeId && RF_ALLOWED_EMPLOYEE_IDS.has(String(employeeId));
+  const showRfCard = true;
   const now = useNow();
   const eom = endOfMonth(now);
   const diff = Math.max(0, eom.getTime() - now.getTime());
