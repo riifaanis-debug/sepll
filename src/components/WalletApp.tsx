@@ -103,7 +103,7 @@ import {
 } from "@/lib/discount-policy";
 import { ThirdPartyDialog } from "@/components/ThirdPartyDialog";
 import { QuickActionsHub } from "@/components/QuickActionsHub";
-import CollectorInfoCard from "@/components/CollectorInfoCard";
+
 
 
 import pfIcon from "@/assets/pf-icon.png.asset.json";
