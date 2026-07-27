@@ -497,15 +497,10 @@ export default function WalletApp() {
               e.target.value = "";
             }}
           />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={clearSession}
-            aria-label="تسجيل الخروج"
-            title="تسجيل الخروج"
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-          >
-            <LogOut className="size-5" />
+          <Button asChild variant="ghost" size="icon" aria-label="أدوات الرفع" title="أدوات الرفع">
+            <Link to="/admin">
+              <Upload className="size-5" />
+            </Link>
           </Button>
         </div>
       </header>
