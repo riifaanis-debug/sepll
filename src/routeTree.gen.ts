@@ -18,6 +18,7 @@ import { Route as LookupRouteImport } from './routes/lookup'
 import { Route as DiscountCardRouteImport } from './routes/discount-card'
 import { Route as CollectedRouteImport } from './routes/collected'
 import { Route as CalculatorRouteImport } from './routes/calculator'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
 const WhatsappTemplatesRoute = WhatsappTemplatesRouteImport.update({
@@ -65,6 +66,11 @@ const CalculatorRoute = CalculatorRouteImport.update({
   path: '/calculator',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -73,6 +79,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/calculator': typeof CalculatorRoute
   '/collected': typeof CollectedRoute
   '/discount-card': typeof DiscountCardRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/calculator': typeof CalculatorRoute
   '/collected': typeof CollectedRoute
   '/discount-card': typeof DiscountCardRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/calculator': typeof CalculatorRoute
   '/collected': typeof CollectedRoute
   '/discount-card': typeof DiscountCardRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/calculator'
     | '/collected'
     | '/discount-card'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/calculator'
     | '/collected'
     | '/discount-card'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/calculator'
     | '/collected'
     | '/discount-card'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   CalculatorRoute: typeof CalculatorRoute
   CollectedRoute: typeof CollectedRoute
   DiscountCardRoute: typeof DiscountCardRoute
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalculatorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -237,6 +257,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   CalculatorRoute: CalculatorRoute,
   CollectedRoute: CollectedRoute,
   DiscountCardRoute: DiscountCardRoute,
