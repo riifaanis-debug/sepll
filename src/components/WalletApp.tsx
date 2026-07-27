@@ -103,7 +103,7 @@ import {
 } from "@/lib/discount-policy";
 import { ThirdPartyDialog } from "@/components/ThirdPartyDialog";
 import { QuickActionsHub } from "@/components/QuickActionsHub";
-import CollectorInfoCard from "@/components/CollectorInfoCard";
+
 
 
 import pfIcon from "@/assets/pf-icon.png.asset.json";
@@ -558,9 +558,6 @@ export default function WalletApp() {
       </Sheet>
 
       <main className="mx-auto max-w-7xl px-4 py-5 space-y-5">
-        {/* بطاقة بيانات المحصل */}
-        <CollectorInfoCard />
-
         {/* بطاقة ملخص المحفظة */}
         <Card className="p-4" dir="rtl">
           <div className="grid grid-cols-2 gap-2 mb-2">
@@ -580,6 +577,15 @@ export default function WalletApp() {
             </div>
           </div>
           <div className="grid grid-cols-3 gap-1.5">
+            <Link
+              to="/rf-wallet"
+              className="rounded-md border bg-muted/30 px-2 py-2 flex flex-col items-center gap-0.5 hover:bg-muted/60 transition-colors"
+            >
+              <div className="text-[11px] font-bold text-[#10b981]">RF</div>
+              <div className="text-sm font-extrabold">
+                <span className="text-[11px] font-bold">العقار</span>
+              </div>
+            </Link>
             <div className="rounded-md border bg-muted/30 px-2 py-2 flex flex-col items-center gap-0.5">
               <div className="text-[11px] font-bold text-[#f59e0b]">PF</div>
               <div className="text-sm font-extrabold tabular-nums">
@@ -592,14 +598,10 @@ export default function WalletApp() {
                 {stats.al} <span className="text-[11px] font-bold">حساب</span>
               </div>
             </div>
-            <div className="rounded-md border bg-muted/30 px-2 py-2 flex flex-col items-center gap-0.5">
-              <div className="text-[11px] font-bold text-[#ff4d6d]">CC</div>
-              <div className="text-sm font-extrabold tabular-nums">
-                {stats.cc} <span className="text-[11px] font-bold">حساب</span>
-              </div>
-            </div>
           </div>
         </Card>
+
+
 
         {/* Collector unified dashboard */}
         <div className="max-w-md mx-auto">
