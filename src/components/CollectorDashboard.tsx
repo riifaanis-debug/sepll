@@ -132,41 +132,8 @@ export function CollectorDashboard({
           </div>
         </div>
 
-        {/* Interactive Achievement Meter */}
-        <div className="flex flex-col gap-0.5 text-right">
-          <div className="flex items-center justify-start gap-1 text-[10.5px] text-[#133E35] font-bold select-none">
-            <Target className="size-3.5 text-[#234E45]" />
-            <span>مؤشر التحقيق التفاعلي</span>
-          </div>
-          <div className="mt-0.5">
-            <AchievementMeter pct={pct} realPct={pct} />
-          </div>
-          <div
-            className="flex items-center justify-between mt-0.5 text-[9.5px] tabular-nums text-[#234E45] font-bold"
-            dir="ltr"
-          >
-            <span className="text-[#133E35]">{collected.toLocaleString("en-US")} SAR</span>
-            <span>{TARGET.toLocaleString("en-US")} SAR</span>
-          </div>
-        </div>
 
-        {/* Real Static Achievement Meter */}
-        <div className="flex flex-col gap-0.5 text-right">
-          <div className="flex items-center justify-start gap-1 text-[10.5px] text-[#133E35] font-bold select-none">
-            <Target className="size-3.5 text-[#234E45]" />
-            <span>مؤشر التحقيق الفعلي</span>
-          </div>
-          <div className="mt-0.5">
-            <AchievementMeter pct={pct} realPct={pct} staticMode />
-          </div>
-          <div
-            className="flex items-center justify-between mt-0.5 text-[9.5px] tabular-nums text-[#234E45] font-bold"
-            dir="ltr"
-          >
-            <span className="text-[#133E35]">{collected.toLocaleString("en-US")} SAR</span>
-            <span>{TARGET.toLocaleString("en-US")} SAR</span>
-          </div>
-        </div>
+
 
         {/* Totals: collected + remaining to target */}
         <div className="grid grid-cols-2 gap-1.5">
