@@ -601,7 +601,7 @@ export default function WalletApp() {
           </div>
         </Card>
 
-        </Card>
+
 
         {/* Collector unified dashboard */}
         <div className="max-w-md mx-auto">
