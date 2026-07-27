@@ -28,18 +28,15 @@ import {
   KeyRound,
   ImagePlus,
 } from "lucide-react";
-import PermissionsPanel from "@/components/PermissionsPanel";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useWallet } from "@/lib/wallet-store";
-import collectors from "@/data/collectors.json";
 import { formatCurrency, type Customer } from "@/lib/wallet-types";
 import { RequestsUploadPanel, WalletChangesPanel } from "@/components/AdminPanels";
 import MappingReview, { loadDefaultMapping } from "@/components/MappingReview";
 import { detectMapping } from "@/lib/mapping-engine";
 import { canonicalToCustomer } from "@/lib/canonical-to-customer";
-import { clearSession, DISABLED_KEY } from "@/components/LoginGate";
 import { useServerFn } from "@tanstack/react-start";
-import { getCollectorsStats } from "@/lib/collectors-stats.functions";
 import { clearWalletCustomers } from "@/lib/wallet-write.functions";
 import {
   listWalletBackups,
@@ -49,10 +46,6 @@ import {
 import { Archive, RotateCcw, Building2 } from "lucide-react";
 import { replaceRfCustomers, clearRfCustomers, getRfCustomers } from "@/lib/rf-wallet.functions";
 
-type Collector = { supervisor: string; collector: string; employeeId: string };
-const BASE_COLLECTORS = collectors as Collector[];
-
-const EXTRA_KEY = "wallet:collectors:extra";
 const REQ_KEY = "wallet:thirdparty:requests";
 const PHOTO_KEY = "wallet:collectors:photos";
 
@@ -76,7 +69,7 @@ type ThirdPartyReq = {
   body: string;
 };
 
-type Tab = "home" | "wallet" | "requests-file" | "changes" | "members" | "requests" | "collectors" | "permissions" | "backups" | "rf-wallet";
+type Tab = "home" | "wallet" | "requests-file" | "changes" | "requests" | "backups" | "rf-wallet";
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState<Tab>("home");
@@ -102,25 +95,16 @@ export default function AdminDashboard() {
 
               {tab === "requests-file" && "إضافة ملف الطلبات"}
               {tab === "changes" && "إضافة تغييرات على المحفظة الحالية"}
-              {tab === "members" && "إضافة أعضاء في القروب"}
               {tab === "requests" && "طلبات إرسال العملاء للطرف الثالث"}
-              {tab === "collectors" && "بيانات المحصلين"}
-              {tab === "permissions" && "صلاحيات المحصلين"}
               {tab === "backups" && "النسخ الاحتياطية للمحافظ"}
               {tab === "rf-wallet" && "إضافة محفظة عملاء العقار (RF)"}
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              clearSession();
-              toast.success("تم تسجيل الخروج");
-            }}
-            className="gap-1.5 shrink-0"
-          >
-            <LogOut className="size-4" />
-            <span className="hidden sm:inline">تسجيل خروج</span>
+          <Button asChild variant="outline" size="sm" className="gap-1.5 shrink-0">
+            <Link to="/">
+              <ArrowRight className="size-4" />
+              <span className="hidden sm:inline">المحفظة</span>
+            </Link>
           </Button>
         </div>
       </header>
@@ -130,10 +114,7 @@ export default function AdminDashboard() {
         {tab === "wallet" && <WalletUploadPanel />}
         {tab === "requests-file" && <RequestsUploadPanel />}
         {tab === "changes" && <WalletChangesPanel />}
-        {tab === "members" && <MembersPanel />}
         {tab === "requests" && <RequestsPanel />}
-        {tab === "collectors" && <CollectorsDataPanel />}
-        {tab === "permissions" && <PermissionsPanel />}
         {tab === "backups" && <BackupsPanel />}
         {tab === "rf-wallet" && <RfWalletUploadPanel />}
       </main>
@@ -173,29 +154,11 @@ function HomeGrid({ onSelect }: { onSelect: (t: Tab) => void }) {
       icon: RefreshCw,
     },
     {
-      id: "members",
-      title: "إضافة أعضاء في القروب",
-      desc: "تفعيل المحصلين للوصول إلى القروب",
-      icon: UserPlus,
-    },
-    {
       id: "requests",
       title: "استقبال طلبات الطرف الثالث",
       desc: "مراجعة الطلبات المقدمة من المحصلين",
       icon: Inbox,
       badge: pendingCount,
-    },
-    {
-      id: "collectors",
-      title: "بيانات المحصلين",
-      desc: "عرض المحصلين وإحصائياتهم وتمكين/إغلاق الدخول",
-      icon: Users,
-    },
-    {
-      id: "permissions",
-      title: "صلاحيات المحصلين",
-      desc: "التحكم بصلاحيات العرض والحساب والتصدير والإدارة",
-      icon: KeyRound,
     },
     {
       id: "backups",
