@@ -46,7 +46,6 @@ import {
   addMessage,
   fetchGroupMembers,
   getAllCollectors,
-  isInGroup,
   readMessages,
   writeMessages,
   type Attachment,
