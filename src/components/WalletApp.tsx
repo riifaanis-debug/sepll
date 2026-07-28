@@ -555,16 +555,7 @@ export default function WalletApp() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-1.5">
-            <Link
-              to="/rf-wallet"
-              className="rounded-md border bg-muted/30 px-2 py-2 flex flex-col items-center gap-0.5 hover:bg-muted/60 transition-colors"
-            >
-              <div className="text-[11px] font-bold text-[#10b981]">RF</div>
-              <div className="text-sm font-extrabold">
-                <span className="text-[11px] font-bold">العقار</span>
-              </div>
-            </Link>
+          <div className="grid grid-cols-2 gap-1.5">
             <div className="rounded-md border bg-muted/30 px-2 py-2 flex flex-col items-center gap-0.5">
               <div className="text-[11px] font-bold text-[#f59e0b]">PF</div>
               <div className="text-sm font-extrabold tabular-nums">
