@@ -348,9 +348,6 @@ function FullWalletDialog({
             nonEmpty(c["رقم الطلب"])
           );
         }
-        case "promises": {
-          return isPromisePred(c, st);
-        }
         case "exemptions": {
           return hasReqType(c, st, "exemption");
         }
