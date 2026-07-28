@@ -121,23 +121,9 @@ export function QuickActionsHub({
         filteredSalary={filteredSalary}
         filteredDeceased={filteredDeceased}
         filteredSibel={filteredSibel}
-        mailUnread={mailUnread}
         badges={badges}
-        groupEnabled={groupEnabled}
         employeeId={employeeId}
         onSelectAction={(k) => {
-          if (k === "group" && !groupEnabled) {
-            toast.error("لم تتم إضافتك إلى القروب بعد. يرجى مراجعة الإدارة.");
-            return;
-          }
-          if (k === "mail") {
-            navigate({ to: "/mail" });
-            return;
-          }
-          if (k === "rf") {
-            navigate({ to: "/rf-wallet" });
-            return;
-          }
           if (k === "wallet") {
             navigate({ to: "/wallet-view", search: { view: "my-wallet" } });
             return;
@@ -146,7 +132,6 @@ export function QuickActionsHub({
             k === "salary" ||
             k === "deceased" ||
             k === "sibel" ||
-            k === "promises" ||
             k === "exemptions" ||
             k === "reschedules"
           ) {
@@ -163,7 +148,6 @@ export function QuickActionsHub({
         onCollectedClick={() => navigate({ to: "/collected" })}
       />
 
-      <PromisesDialog open={open === "promises"} onClose={() => setOpen(null)} />
       <RequestsDialog open={open === "exemptions"} onClose={() => setOpen(null)} kind="exemption" />
       <RequestsDialog
         open={open === "reschedules"}
@@ -175,7 +159,6 @@ export function QuickActionsHub({
         onClose={() => setOpen(null)}
         filterType={walletFilter}
       />
-      <GroupDialog open={open === "group"} onClose={() => setOpen(null)} />
     </>
   );
 }
