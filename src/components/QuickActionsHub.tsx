@@ -46,7 +46,6 @@ import {
   addMessage,
   fetchGroupMembers,
   getAllCollectors,
-  isInGroup,
   readMessages,
   writeMessages,
   type Attachment,
@@ -89,60 +88,24 @@ export function QuickActionsHub({
 }) {
   const session = getSession();
   const employeeId = session?.employeeId;
-  const [groupTick, setGroupTick] = useState(0);
-  const groupEnabled = isInGroup(employeeId);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    let alive = true;
-    const refresh = () =>
-      fetchGroupMembers()
-        .then(() => {
-          if (alive) setGroupTick((t) => t + 1);
-        })
-        .catch(() => {});
-    refresh();
-    const onChange = () => setGroupTick((t) => t + 1);
-    window.addEventListener("group-members-changed", onChange);
-    const id = setInterval(refresh, 15000);
-    return () => {
-      alive = false;
-      window.removeEventListener("group-members-changed", onChange);
-      clearInterval(id);
-    };
-  }, []);
-  void groupTick;
 
   const [open, setOpen] = useState<QuickKey | null>(null);
   const [walletFilter, setWalletFilter] = useState<QuickKey | null>(null);
-  const [mailUnread, setMailUnread] = useState(0);
 
   const { customers } = useWallet();
   const { states } = useCustomerStates();
 
   const badges = useMemo(() => {
-    let p = 0,
-      e = 0,
+    let e = 0,
       r = 0;
     for (const c of customers) {
       const st = states[customerKey(c)];
-      if (isPromisePred(c, st)) p++;
       if (hasReqType(c, st, "exemption")) e++;
       if (hasReqType(c, st, "reschedule")) r++;
     }
-    return { promises: p, exemptions: e, reschedules: r };
+    return { promises: 0, exemptions: e, reschedules: r };
   }, [customers, states]);
-
-  useEffect(() => {
-    if (!employeeId) return setMailUnread(0);
-    const refresh = () => {
-      const all = readMessages();
-      setMailUnread(all.filter((m) => m.toEmployeeId === employeeId && !m.read).length);
-    };
-    refresh();
-    const id = setInterval(refresh, 3000);
-    return () => clearInterval(id);
-  }, [employeeId, open]);
 
   return (
     <>
@@ -158,23 +121,9 @@ export function QuickActionsHub({
         filteredSalary={filteredSalary}
         filteredDeceased={filteredDeceased}
         filteredSibel={filteredSibel}
-        mailUnread={mailUnread}
         badges={badges}
-        groupEnabled={groupEnabled}
         employeeId={employeeId}
         onSelectAction={(k) => {
-          if (k === "group" && !groupEnabled) {
-            toast.error("لم تتم إضافتك إلى القروب بعد. يرجى مراجعة الإدارة.");
-            return;
-          }
-          if (k === "mail") {
-            navigate({ to: "/mail" });
-            return;
-          }
-          if (k === "rf") {
-            navigate({ to: "/rf-wallet" });
-            return;
-          }
           if (k === "wallet") {
             navigate({ to: "/wallet-view", search: { view: "my-wallet" } });
             return;
@@ -183,7 +132,6 @@ export function QuickActionsHub({
             k === "salary" ||
             k === "deceased" ||
             k === "sibel" ||
-            k === "promises" ||
             k === "exemptions" ||
             k === "reschedules"
           ) {
@@ -200,7 +148,6 @@ export function QuickActionsHub({
         onCollectedClick={() => navigate({ to: "/collected" })}
       />
 
-      <PromisesDialog open={open === "promises"} onClose={() => setOpen(null)} />
       <RequestsDialog open={open === "exemptions"} onClose={() => setOpen(null)} kind="exemption" />
       <RequestsDialog
         open={open === "reschedules"}
@@ -212,7 +159,6 @@ export function QuickActionsHub({
         onClose={() => setOpen(null)}
         filterType={walletFilter}
       />
-      <GroupDialog open={open === "group"} onClose={() => setOpen(null)} />
     </>
   );
 }
@@ -401,9 +347,6 @@ function FullWalletDialog({
             nonEmpty(c["طلب جدولة"]) ||
             nonEmpty(c["رقم الطلب"])
           );
-        }
-        case "promises": {
-          return isPromisePred(c, st);
         }
         case "exemptions": {
           return hasReqType(c, st, "exemption");
