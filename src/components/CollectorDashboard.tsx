@@ -1,21 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Wallet,
-  Clock,
   Target,
-  Briefcase,
-  Heart,
   FileText,
-  Handshake,
   FileMinus,
   CalendarClock,
-  Mail,
-  Lock,
   MousePointerClick,
 } from "lucide-react";
 import { toast } from "sonner";
 
-const TARGET = 350000;
 
 function endOfMonth(d: Date) {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
