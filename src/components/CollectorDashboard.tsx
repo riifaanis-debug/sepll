@@ -24,20 +24,15 @@ function useNow() {
 }
 
 export type QuickKey =
-  | "promises"
   | "exemptions"
   | "reschedules"
   | "wallet"
-  | "mail"
-  | "group"
   | "cc"
   | "al"
   | "pf"
   | "salary"
   | "deceased"
-  | "sibel"
-  | "rf";
-
+  | "sibel";
 
 export function CollectorDashboard({
   collected,
@@ -51,9 +46,7 @@ export function CollectorDashboard({
   filteredSalary,
   filteredDeceased,
   filteredSibel,
-  mailUnread,
   badges,
-  groupEnabled = false,
   employeeId,
   onSelectAction,
   onCollectedClick,
@@ -69,26 +62,11 @@ export function CollectorDashboard({
   filteredSalary: number;
   filteredDeceased: number;
   filteredSibel: number;
-  mailUnread: number;
   badges: { promises: number; exemptions: number; reschedules: number };
-  groupEnabled?: boolean;
   employeeId?: string;
   onSelectAction: (key: QuickKey) => void;
   onCollectedClick?: () => void;
 }) {
-  const showRfCard = true;
-  const now = useNow();
-  const eom = endOfMonth(now);
-  const diff = Math.max(0, eom.getTime() - now.getTime());
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  const mins = Math.floor((diff % 3600000) / 60000);
-  const secs = Math.floor((diff % 60000) / 1000);
-
-  const pct = Math.min(100, (collected / TARGET) * 100);
-
-  const remaining = Math.max(0, TARGET - collected);
-
   const cardCls =
     "bg-white border border-[#e5e2dc] p-4 sm:p-5 rounded-[24px] text-[#133E35] flex flex-col gap-4 select-none w-full max-w-md mx-auto shadow-sm font-sans";
   const fieldCls = "bg-[#eeece7] border border-[#e5e2dc]";
@@ -96,69 +74,7 @@ export function CollectorDashboard({
 
   return (
     <div className="flex flex-col gap-3 w-full" dir="rtl">
-      {/* ============ Card 1: Time & Targets ============ */}
-      <div className={cardCls}>
-        {/* Countdown Timer Row */}
-        <div className="flex flex-col gap-1 text-right w-full">
-          <div className="flex items-center justify-start gap-1 text-[#234E45] text-[10.5px] font-bold">
-            <Clock className="size-3.5" />
-            <span>المتبقي على نهاية الشهر</span>
-          </div>
-          <div className="grid grid-cols-4 gap-1.5 text-center">
-            {[
-              { v: days, l: "يوم" },
-              { v: hours, l: "ساعة" },
-              { v: mins, l: "دقيقة" },
-              { v: secs, l: "ثانية" },
-            ].map((it) => (
-              <div
-                key={it.l}
-                className={`${fieldCls} rounded-[10px] py-1 flex flex-col items-center`}
-              >
-                <div className="text-base font-extrabold text-[#133E35] tabular-nums leading-none">
-                  {String(it.v).padStart(2, "0")}
-                </div>
-                <div className="text-[9px] text-[#234E45] font-medium mt-0.5">{it.l}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-
-
-
-        {/* Totals: collected + remaining to target */}
-        <div className="grid grid-cols-2 gap-1.5">
-          <button
-            type="button"
-            onClick={() => onCollectedClick?.()}
-            className={`${fieldCls} rounded-[12px] py-1.5 px-2.5 text-right flex flex-col gap-0.5 min-h-[44px] cursor-pointer hover:bg-[#e5e2dc] transition-colors w-full`}
-          >
-            <div className="flex items-center justify-start gap-1 text-[#234E45] text-[10px] font-bold">
-              <Target className="size-3" />
-              <span>إجمالي المحقق</span>
-            </div>
-            <div className="text-xs font-extrabold text-[#133E35] tabular-nums text-right truncate">
-              {collected.toLocaleString("en-US")}{" "}
-              <span className="text-[#234E45] text-[8.5px] font-medium">SAR</span>
-            </div>
-          </button>
-          <div
-            className={`${fieldCls} rounded-[12px] py-1.5 px-2.5 text-right flex flex-col gap-0.5 min-h-[44px]`}
-          >
-            <div className="flex items-center justify-start gap-1 text-[#234E45] text-[10px] font-bold">
-              <Clock className="size-3" />
-              <span>المتبقي للهدف</span>
-            </div>
-            <div className="text-xs font-extrabold text-[#133E35] tabular-nums text-right truncate">
-              {remaining.toLocaleString("en-US")}{" "}
-              <span className="text-[#234E45] text-[8.5px] font-medium">SAR</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ============ Card 2: Portfolio Overview ============ */}
+      {/* ============ Card 1: Portfolio Overview ============ */}
       <div className={cardCls}>
         <button
           type="button"
@@ -177,26 +93,12 @@ export function CollectorDashboard({
             حساب
           </div>
         </button>
-
       </div>
 
-
-
-      {/* ============ Card 3: Actions ============ */}
+      {/* ============ Card 2: Actions ============ */}
       <div className={cardCls}>
-        {/* Bento Grid (6 action buttons) */}
+        {/* Bento Grid (3 action buttons) */}
         <div className="grid grid-cols-3 gap-2.5">
-          <button
-            type="button"
-            onClick={() => onSelectAction("promises")}
-            className={`relative ${buttonFieldCls} rounded-[15px] p-2 flex flex-col items-center justify-center gap-1.5 h-20 text-center select-none cursor-pointer text-[#133E35]`}
-          >
-            <Handshake className="size-4.5 text-[#f59e0b]" />
-            <span className="text-[9.5px] font-extrabold leading-tight whitespace-nowrap">
-              وعود السداد
-            </span>
-          </button>
-
           <button
             type="button"
             onClick={() => onSelectAction("exemptions")}
@@ -239,57 +141,9 @@ export function CollectorDashboard({
               محفظتي
             </span>
           </button>
-
-          <button
-            type="button"
-            onClick={() => onSelectAction("mail")}
-            className={`relative ${buttonFieldCls} rounded-[15px] p-2 flex flex-col items-center justify-center gap-1.5 h-20 text-center select-none cursor-pointer text-[#133E35]`}
-          >
-            <Mail className="size-4.5 text-[#3cd4b4]" />
-            <span className="text-[9.5px] font-extrabold leading-tight whitespace-nowrap">
-              البريد الخاص
-            </span>
-            {mailUnread > 0 && (
-              <span className="absolute -top-1 -left-1 bg-[#ef4444] text-white text-[8px] font-black size-4 rounded-full flex items-center justify-center shadow-md">
-                {mailUnread}
-              </span>
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onSelectAction("group")}
-            className={`relative ${buttonFieldCls} rounded-[15px] p-2 flex flex-col items-center justify-center gap-1.5 h-20 text-center select-none cursor-pointer text-[#133E35]`}
-          >
-            <Lock className={`size-4.5 ${groupEnabled ? "text-[#3cd4b4]" : "text-neutral-400"}`} />
-            <span
-              className={`text-[9.5px] font-extrabold leading-tight whitespace-nowrap ${groupEnabled ? "" : "text-neutral-300"}`}
-            >
-              القروب
-            </span>
-          </button>
         </div>
       </div>
-
-      {/* ============ Card 4: RF Real Estate — standalone ============ */}
-      {showRfCard && (
-        <div className={cardCls}>
-          <button
-            type="button"
-            onClick={() => onSelectAction("rf")}
-            className="rounded-[14px] px-3 py-3 flex items-center gap-3 w-full cursor-pointer select-none text-[#133E35] font-sans bg-[#eeece7] hover:bg-[#e6e3dc] active:scale-[0.99] transition-all"
-          >
-            <div className="size-10 rounded-full bg-white flex items-center justify-center shadow-sm shrink-0">
-              <Wallet className="size-5 text-amber-500" />
-            </div>
-            <span className="text-[12px] font-extrabold text-[#133E35]">
-              محفظة عملاء العقار ( RF )
-            </span>
-          </button>
-        </div>
-      )}
     </div>
-
   );
 }
 
