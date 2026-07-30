@@ -360,31 +360,12 @@ function FullWalletDialog({
     });
   }, [customers, filterType, states]);
 
-  const cols: { h: string; k: keyof Customer | string[] }[] = [
-    { h: "رقم الحساب", k: "رقم الحساب" },
-    { h: "مبلغ المديونية", k: "مبلغ المديونية" },
-    { h: "NOTE", k: ["NOTE", "Note"] as any },
-    { h: "الاكشن", k: "الاكشن" },
-    { h: "نوع المنتج", k: ["نوع المنتج", "المنتج"] as any },
-    { h: "رقم الهوية", k: "رقم الهوية" },
-    { h: "اسم العميل", k: "اسم العميل" },
-    { h: "رقم الجوال", k: "رقم الجوال" },
-    { h: "JWO_DT", k: ["jWO_DT", "jWO-DT"] as any },
-    { h: "عمر الدين", k: ["عمر الدين", "عدد ايام التعثر"] as any },
-    { h: "تاريخ التجميد", k: "تاريخ التجميد" },
-    { h: "عميل متوفي", k: "عميل متوفي" },
-    { h: "عميل رواتب", k: "عميل رواتب" },
-    { h: "تقييم الأعمال", k: ["تقييم أعمال", "تقييم الأعمال"] as any },
-    { h: "سند غير مؤرشف", k: "سند غير مؤرشف" as any },
-    { h: "رقم القضية", k: "رقم القضية" },
-    { h: "اسم المحكمة", k: "اسم المحكمة" },
-    { h: "رقم مرجع الحجز التنفيذي", k: ["رقم مرجع الحجز التنفيذي", "مرجع الحجز التنفيذي"] as any },
-    { h: "أرصدة محجوزة", k: ["أرصدة محجوزة", "ارصدة محجوزه", "ارصده محجوزه"] as any },
-    { h: "السداد", k: "السداد" as any },
-    { h: "رقم طلب سيبل", k: ["رقم طلب سيبل", "رقم طلب سبيل", "رقم الطلب في نظام سيبل"] as any },
-    { h: "نوع الطلب", k: "نوع الطلب" as any },
-    { h: "الوصف", k: "الوصف" as any },
-  ];
+  // Unified system-wide table structure — same columns, same order, everywhere.
+  const cols: { h: string; k: keyof Customer | string[] }[] = UNIFIED_COLUMNS.map((c) => ({
+    h: c.key,
+    k: c.aliases.filter((a) => /[\u0600-\u06FF]/.test(a) || a === c.key).concat(c.key) as any,
+  }));
+
 
   const readRaw = (row: Customer, k: string | string[]) => {
     const keys = Array.isArray(k) ? k : [k];

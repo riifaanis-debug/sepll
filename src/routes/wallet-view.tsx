@@ -79,6 +79,8 @@ export const Route = createFileRoute("/wallet-view")({
   component: WalletViewPage,
 });
 
+import { UNIFIED_COLUMNS } from "@/lib/unified-columns";
+
 type ColType = "currency" | "phone" | "yesno" | "editText" | "editNumber" | "editMoney" | "date" | "reqType" | "action";
 
 // Unified system-wide table structure — order is mandatory and identical everywhere.
