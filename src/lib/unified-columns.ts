@@ -1,0 +1,144 @@
+// SINGLE SOURCE OF TRUTH for every wallet / customer table in the app.
+// The order below is MANDATORY and identical in every section
+// (محفظتي، طلبات الإعفاء، طلبات إعادة الجدولة، طلبات التسوية، التحصيل الذكي،
+//  نتائج البحث، وأي جدول محفظة مستقبلي).
+// Columns are rendered left-to-right exactly in this order.
+
+export type UnifiedColType =
+  | "text"
+  | "currency"
+  | "phone"
+  | "date"
+  | "reqType";
+
+export type UnifiedColumn = {
+  key: string; // canonical column name (must match the official portfolio file)
+  label: string; // header text shown in every table
+  type: UnifiedColType;
+  aliases: string[]; // accepted source headers on import
+};
+
+export const UNIFIED_COLUMNS: UnifiedColumn[] = [
+  {
+    key: "رقم الحساب",
+    label: "رقم الحساب",
+    type: "text",
+    aliases: ["رقم الحساب", "account", "account number", "acc no", "ACCOUNT_NUMBER", "رقم العقد"],
+  },
+  {
+    key: "مبلغ المديونية",
+    label: "مبلغ المديونية",
+    type: "currency",
+    aliases: [
+      "مبلغ المديونية",
+      "مبلغ المديونيه",
+      "LOAN_BALANCE",
+      "Loan Balance",
+      "Outstanding",
+      "Amount",
+      "Balance",
+      "المبلغ",
+      "المبلغ المستحق",
+      "رصيد التمويل",
+      "رصيد",
+    ],
+  },
+  {
+    key: "اسم العميل",
+    label: "اسم العميل",
+    type: "text",
+    aliases: ["اسم العميل", "CUST_NAME_1", "CUST_NAME_2", "Customer Name", "Client Name", "Name", "العميل", "الاسم"],
+  },
+  {
+    key: "نوع المنتج",
+    label: "نوع المنتج",
+    type: "text",
+    aliases: ["نوع المنتج", "PRODUCT_CATEGORY", "Product", "Product Type", "المنتج"],
+  },
+  {
+    key: "رقم الهوية",
+    label: "رقم الهوية",
+    type: "text",
+    aliases: ["رقم الهوية", "رقم الهويه", "CUST_ID_NO", "National ID", "ID Number", "السجل المدني", "هوية"],
+  },
+  {
+    key: "jWO_DT",
+    label: "jWO_DT",
+    type: "text",
+    aliases: ["jWO_DT", "jWO-DT", "JWO_DT", "JWO-DT", "jwodt"],
+  },
+  {
+    key: "رقم الجوال",
+    label: "رقم الجوال",
+    type: "phone",
+    aliases: ["رقم الجوال", "الجوال", "CUST_PHONE_MOBILE_1", "CUST_PHONE_MOBILE_2", "Mobile", "Phone", "موبايل"],
+  },
+  {
+    key: "نوع الطلب",
+    label: "نوع الطلب",
+    type: "reqType",
+    aliases: ["نوع الطلب", "Request Type", "RequestType", "نوع طلب"],
+  },
+  {
+    key: "رقم الطلب",
+    label: "رقم الطلب",
+    type: "text",
+    aliases: [
+      "رقم الطلب",
+      "Request Number",
+      "Request No",
+      "رقم طلب سبيل",
+      "رقم طلب سيبل",
+      "رقم الطلب في نظام سيبل",
+      "Siebel Request No",
+      "Siebel No",
+    ],
+  },
+  {
+    key: "حالة الطلب",
+    label: "حالة الطلب",
+    type: "text",
+    aliases: ["حالة الطلب", "حاله الطلب", "Request Status", "Status", "تصنيف الطلب"],
+  },
+  {
+    key: "حالة الطلب الفرعية",
+    label: "حالة الطلب الفرعية",
+    type: "text",
+    aliases: ["حالة الطلب الفرعية", "حاله الطلب الفرعيه", "Sub Status", "SubStatus", "الحالة الفرعية"],
+  },
+  {
+    key: "تاريخ فتح الطلب",
+    label: "تاريخ فتح الطلب",
+    type: "date",
+    aliases: ["تاريخ فتح الطلب", "Open Date", "Created Date", "تاريخ الطلب"],
+  },
+  {
+    key: "تاريخ الإغلاق",
+    label: "تاريخ الإغلاق",
+    type: "date",
+    aliases: ["تاريخ الإغلاق", "تاريخ الاغلاق", "Close Date", "Closed Date", "تاريخ الاقفال"],
+  },
+  {
+    key: "الوصف",
+    label: "الوصف",
+    type: "text",
+    aliases: ["الوصف", "Description", "Desc", "تفاصيل", "NOTE", "Note", "ملاحظات"],
+  },
+];
+
+export const UNIFIED_KEYS = UNIFIED_COLUMNS.map((c) => c.key);
+
+/**
+ * Guarantees a row exposes every unified column, in the mandatory order.
+ * Missing columns are created with a `null` value; existing data is untouched.
+ */
+export function ensureUnifiedRow<T extends Record<string, any>>(row: T): T {
+  const out: Record<string, any> = {};
+  for (const k of UNIFIED_KEYS) out[k] = row?.[k] ?? null;
+  return { ...out, ...(row || {}) } as T;
+}
+
+/** Applies `ensureUnifiedRow` to a list of rows. */
+export function ensureUnifiedRows<T extends Record<string, any>>(rows: T[]): T[] {
+  return (rows || []).map(ensureUnifiedRow);
+}
