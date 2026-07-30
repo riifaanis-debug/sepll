@@ -133,9 +133,13 @@ export const UNIFIED_KEYS = UNIFIED_COLUMNS.map((c) => c.key);
  * Missing columns are created with a `null` value; existing data is untouched.
  */
 export function ensureUnifiedRow<T extends Record<string, any>>(row: T): T {
+  const src: Record<string, any> = { ...(row || {}) };
   const out: Record<string, any> = {};
-  for (const k of UNIFIED_KEYS) out[k] = row?.[k] ?? null;
-  return { ...out, ...(row || {}) } as T;
+  // unified columns first, in the mandatory order
+  for (const k of UNIFIED_KEYS) out[k] = src[k] === undefined ? null : src[k];
+  // any extra source columns keep their data after the unified block
+  for (const k of Object.keys(src)) if (!(k in out)) out[k] = src[k];
+  return out as T;
 }
 
 /** Applies `ensureUnifiedRow` to a list of rows. */
