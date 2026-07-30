@@ -157,7 +157,17 @@ function rawCellValue(row: any, key: string) {
     if (row.is_deceased === false && (src[key] == null || src[key] === "")) return null;
   }
 
-  return src[key] ?? row[key] ?? fallback ?? null;
+  const direct = src[key] ?? row[key] ?? fallback;
+  if (direct != null && direct !== "") return direct;
+
+  // Fall back to legacy header aliases so older imports still fill the unified columns.
+  const aliases = UNIFIED_COLUMNS.find((c) => c.key === key)?.aliases ?? [];
+  for (const a of aliases) {
+    const v = src[a] ?? row[a];
+    if (v != null && v !== "") return v;
+  }
+
+  return direct ?? null;
 }
 
 function normYesNo(v: any): "Yes" | "No" {
