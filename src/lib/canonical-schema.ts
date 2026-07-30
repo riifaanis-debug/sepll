@@ -19,8 +19,9 @@ export type FieldDef = {
   forbid?: string[]; // substrings in a header name that DISQUALIFY it for this field
 };
 
-// Official 29 canonical fields, in the exact order of the portfolio file.
-export const CANONICAL_FIELDS: FieldDef[] = [
+// Legacy / additional recognized fields. They are still mapped on import so no
+// existing data is lost, but they NEVER come before the unified block below.
+const LEGACY_FIELDS: FieldDef[] = [
   {
     key: "رقم الحساب",
     type: "account",
