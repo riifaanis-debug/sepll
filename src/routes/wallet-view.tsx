@@ -79,37 +79,16 @@ export const Route = createFileRoute("/wallet-view")({
   component: WalletViewPage,
 });
 
+import { UNIFIED_COLUMNS } from "@/lib/unified-columns";
+
 type ColType = "currency" | "phone" | "yesno" | "editText" | "editNumber" | "editMoney" | "date" | "reqType" | "action";
 
-const COLUMNS: { key: string; label: string; type?: ColType }[] = [
-  { key: "رقم الحساب", label: "رقم الحساب" },
-  { key: "مبلغ المديونية", label: "مبلغ المديونية", type: "currency" },
-  { key: "NOTE", label: "NOTE" },
-  { key: "الاكشن", label: "الاكشن", type: "action" },
-  { key: "نوع المنتج", label: "نوع المنتج" },
-  { key: "تاريخ التجميد", label: "تاريخ التجميد", type: "date" },
-  { key: "jWO_DT", label: "jWO_DT" },
-  { key: "عمر الدين", label: "عمر الدين" },
-  { key: "رقم الهوية", label: "رقم الهوية" },
-  { key: "اسم العميل", label: "اسم العميل" },
-  { key: "رقم الجوال", label: "رقم الجوال", type: "phone" },
-  { key: "الرقم الوظيفي للمحصل", label: "الرقم الوظيفي للمحصل" },
-  { key: "اسم المحصل", label: "اسم المحصل" },
-  { key: "الرقم الوظيفي للمشرف", label: "الرقم الوظيفي للمشرف" },
-  { key: "اسم المشرف", label: "اسم المشرف" },
-  { key: "عميل متوفي", label: "عميل متوفي", type: "yesno" },
-  { key: "عميل رواتب", label: "عميل رواتب", type: "yesno" },
-  { key: "تقييم أعمال", label: "تقييم أعمال", type: "yesno" },
-  { key: "سند غير مؤرشف", label: "سند غير مؤرشف", type: "yesno" },
-  { key: "رقم القضية", label: "رقم القضية" },
-  { key: "اسم المحكمة", label: "اسم المحكمة" },
-  { key: "رقم مرجع الحجز التنفيذي", label: "رقم مرجع الحجز التنفيذي", type: "editNumber" },
-  { key: "أرصدة محجوزة", label: "أرصدة محجوزة", type: "editMoney" },
-  { key: "السداد", label: "السداد", type: "editMoney" },
-  { key: "رقم طلب سبيل", label: "رقم طلب سيبل", type: "editNumber" },
-  { key: "نوع الطلب", label: "نوع الطلب", type: "reqType" },
-  { key: "الوصف", label: "الوصف" },
-];
+// Unified system-wide table structure — order is mandatory and identical everywhere.
+const COLUMNS: { key: string; label: string; type?: ColType }[] = UNIFIED_COLUMNS.map((c) => ({
+  key: c.key,
+  label: c.label,
+  type: c.type === "text" ? undefined : (c.type as ColType),
+}));
 
 const MONEY_KEYS = new Set(["مبلغ المديونية", "أرصدة محجوزة", "السداد"]);
 const DASH_RE = /^(\s|[-—–_]+)*$/;
@@ -178,7 +157,17 @@ function rawCellValue(row: any, key: string) {
     if (row.is_deceased === false && (src[key] == null || src[key] === "")) return null;
   }
 
-  return src[key] ?? row[key] ?? fallback ?? null;
+  const direct = src[key] ?? row[key] ?? fallback;
+  if (direct != null && direct !== "") return direct;
+
+  // Fall back to legacy header aliases so older imports still fill the unified columns.
+  const aliases = UNIFIED_COLUMNS.find((c) => c.key === key)?.aliases ?? [];
+  for (const a of aliases) {
+    const v = src[a] ?? row[a];
+    if (v != null && v !== "") return v;
+  }
+
+  return direct ?? null;
 }
 
 function normYesNo(v: any): "Yes" | "No" {

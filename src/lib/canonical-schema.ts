@@ -2,6 +2,8 @@
 // Keys MUST match the file's column names exactly. Aliases are additive only.
 // Rule: cards / filters / counters bind to these exact field names — no guessing.
 
+import { UNIFIED_COLUMNS, UNIFIED_KEYS } from "./unified-columns";
+
 export type FieldType =
   | "text"
   | "number"
@@ -19,8 +21,9 @@ export type FieldDef = {
   forbid?: string[]; // substrings in a header name that DISQUALIFY it for this field
 };
 
-// Official 29 canonical fields, in the exact order of the portfolio file.
-export const CANONICAL_FIELDS: FieldDef[] = [
+// Legacy / additional recognized fields. They are still mapped on import so no
+// existing data is lost, but they NEVER come before the unified block below.
+const LEGACY_FIELDS: FieldDef[] = [
   {
     key: "رقم الحساب",
     type: "account",
@@ -308,6 +311,39 @@ export const CANONICAL_FIELDS: FieldDef[] = [
     aliases: ["نوع الطلب", "Request Type", "RequestType", "نوع طلب"],
   },
   { key: "الوصف", type: "text", aliases: ["الوصف", "Description", "Desc", "ملخص", "تفاصيل"] },
+];
+
+const UNIFIED_TYPE: Record<string, FieldType> = {
+  "رقم الحساب": "account",
+  "مبلغ المديونية": "number",
+  "اسم العميل": "text",
+  "نوع المنتج": "product",
+  "رقم الهوية": "id",
+  jWO_DT: "date",
+  "رقم الجوال": "phone",
+  "تاريخ فتح الطلب": "date",
+  "تاريخ الإغلاق": "date",
+};
+
+const UNIFIED_FORBID: Record<string, string[]> = {
+  "رقم الهوية": ["agent", "employee", "موظف", "محصل", "وظيفي", "مشرف", "supervisor"],
+  "اسم العميل": ["agent", "collector", "محصل", "supervisor", "مشرف"],
+  "رقم الجوال": ["agent", "موظف", "محصل", "مشرف"],
+};
+
+// The 14 unified columns ALWAYS come first, in the mandatory system-wide order.
+const UNIFIED_AS_FIELDS: FieldDef[] = UNIFIED_COLUMNS.map((c) => ({
+  key: c.key,
+  type: UNIFIED_TYPE[c.key] ?? "text",
+  aliases: c.aliases,
+  forbid: UNIFIED_FORBID[c.key],
+}));
+
+const UNIFIED_SET = new Set(UNIFIED_KEYS);
+
+export const CANONICAL_FIELDS: FieldDef[] = [
+  ...UNIFIED_AS_FIELDS,
+  ...LEGACY_FIELDS.filter((f) => !UNIFIED_SET.has(f.key)),
 ];
 
 export const CANONICAL_KEYS = CANONICAL_FIELDS.map((f) => f.key);

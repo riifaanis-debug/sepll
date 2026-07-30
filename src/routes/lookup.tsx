@@ -15,6 +15,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { lookupCustomer } from "@/lib/customer-lookup.functions";
+import { UNIFIED_COLUMNS } from "@/lib/unified-columns";
 import { formatCurrency } from "@/lib/wallet-types";
 import { usePermissions } from "@/hooks/use-permissions";
 import PermissionDenied from "@/components/PermissionDenied";
@@ -130,27 +131,22 @@ function LookupPage() {
             </div>
             <table className="w-full text-xs">
               <tbody>
-                {(
-                  [
-                    ["اسم العميل", result.customer.name],
-                    ["رقم الهوية", result.customer.nationalId],
-                    ["رقم الحساب", result.customer.accountNumber],
-                    ["رقم الجوال", result.customer.phone],
-                    ["نوع المنتج", result.customer.product],
-                    [
-                      "مبلغ المديونية",
-                      result.customer.amount ? `${formatCurrency(result.customer.amount)} SAR` : "",
-                    ],
-                    ["عمر الدين", result.customer.debtAge],
-                    ["تقييم أعمال", result.customer.evaluation],
-                    ["الاكشن", result.customer.action],
-                    ["رقم القضية", result.customer.caseNo],
-                    ["طلب سابق", result.customer.previousRequest],
-                    ["عميل رواتب", result.customer.isSalary ? "نعم" : "لا"],
-                    ["عميل متوفي", result.customer.isDeceased ? "نعم" : "لا"],
-                    ["اسم المحصل", result.customer.agentName],
-                  ] as const
-                ).map(([k, v]) => (
+                {(() => {
+                  const c = result.customer;
+                  const raw = (c.raw || {}) as Record<string, any>;
+                  const direct: Record<string, any> = {
+                    "رقم الحساب": c.accountNumber,
+                    "مبلغ المديونية": c.amount ? `${formatCurrency(c.amount)} SAR` : "",
+                    "اسم العميل": c.name,
+                    "نوع المنتج": c.product,
+                    "رقم الهوية": c.nationalId,
+                    "رقم الجوال": c.phone,
+                  };
+                  // Unified column order — identical to every other wallet table.
+                  return UNIFIED_COLUMNS.map(
+                    (col) => [col.label, String(direct[col.key] ?? raw[col.key] ?? "")] as const,
+                  );
+                })().map(([k, v]) => (
                   <tr key={k} className="border-b last:border-0">
                     <th className="bg-muted/40 text-right px-3 py-2 font-semibold w-40 align-top">
                       {k}
