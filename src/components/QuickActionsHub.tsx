@@ -34,6 +34,7 @@ import { CollectorDashboard, type QuickKey } from "@/components/CollectorDashboa
 import { useWallet, useCustomerStates } from "@/lib/wallet-store";
 import { freezeFromJwo, readJwo } from "@/lib/freeze-date";
 
+import { UNIFIED_COLUMNS } from "@/lib/unified-columns";
 import { customerKey, formatCurrency, type Customer } from "@/lib/wallet-types";
 
 import { getSession } from "@/components/LoginGate";
@@ -363,7 +364,7 @@ function FullWalletDialog({
   // Unified system-wide table structure — same columns, same order, everywhere.
   const cols: { h: string; k: keyof Customer | string[] }[] = UNIFIED_COLUMNS.map((c) => ({
     h: c.key,
-    k: c.aliases.filter((a) => /[\u0600-\u06FF]/.test(a) || a === c.key).concat(c.key) as any,
+    k: [c.key, ...c.aliases.filter((a) => a !== c.key && /[\u0600-\u06FF]/.test(a))] as any,
   }));
 
 
