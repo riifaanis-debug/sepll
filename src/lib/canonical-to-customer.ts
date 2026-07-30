@@ -1,6 +1,7 @@
 import type { CanonicalRow } from "./canonical-schema";
 import type { Customer } from "./wallet-types";
 import { freezeFromJwo } from "./freeze-date";
+import { ensureUnifiedRow } from "./unified-columns";
 
 // Bridges canonical rows (matching the official portfolio Excel columns) into the
 // Customer shape used by the UI. Populates BOTH the official field names and
@@ -21,8 +22,8 @@ export function canonicalToCustomer(row: CanonicalRow): Customer & { "ID AGENT"?
   const paid = num(get("السداد"));
   const siebelReq = get("رقم طلب سبيل") ?? get("رقم طلب سيبل");
 
-  return {
-    // ---- Official 27 columns (in exact order) ----
+  return ensureUnifiedRow({
+    // ---- Unified + official columns (in exact order) ----
     "رقم الحساب": get("رقم الحساب") as any,
     "مبلغ المديونية": amount,
     NOTE: note,
@@ -53,6 +54,11 @@ export function canonicalToCustomer(row: CanonicalRow): Customer & { "ID AGENT"?
     السداد: paid,
     "رقم طلب سبيل": str(siebelReq),
     "نوع الطلب": str(get("نوع الطلب")),
+    "رقم الطلب": str(get("رقم الطلب")) ?? str(siebelReq),
+    "حالة الطلب": str(get("حالة الطلب")),
+    "حالة الطلب الفرعية": str(get("حالة الطلب الفرعية")),
+    "تاريخ فتح الطلب": str(get("تاريخ فتح الطلب")),
+    "تاريخ الإغلاق": str(get("تاريخ الإغلاق")),
     الوصف: str(get("الوصف")),
 
     // ---- Legacy aliases (kept so existing UI code keeps reading them) ----
@@ -71,5 +77,5 @@ export function canonicalToCustomer(row: CanonicalRow): Customer & { "ID AGENT"?
 
     // ---- Agent assignment hook for wallet-store ----
     "ID AGENT": get("الرقم الوظيفي للمحصل") as any,
-  };
+  });
 }
