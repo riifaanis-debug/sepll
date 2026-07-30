@@ -122,7 +122,7 @@ export const UNIFIED_COLUMNS: UnifiedColumn[] = [
     key: "الوصف",
     label: "الوصف",
     type: "text",
-    aliases: ["الوصف", "Description", "Desc", "تفاصيل", "NOTE", "Note", "ملاحظات"],
+    aliases: ["الوصف", "Description", "Desc", "تفاصيل", "ملخص"],
   },
 ];
 

@@ -2,6 +2,8 @@
 // Keys MUST match the file's column names exactly. Aliases are additive only.
 // Rule: cards / filters / counters bind to these exact field names — no guessing.
 
+import { UNIFIED_COLUMNS, UNIFIED_KEYS } from "./unified-columns";
+
 export type FieldType =
   | "text"
   | "number"
