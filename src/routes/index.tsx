@@ -5,15 +5,15 @@ import { Toaster } from "@/components/ui/sonner";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "إدارة محفظة العملاء — مايو 2026" },
+      { title: "إدارة طلبات الإعفاء وإعادة الجدولة" },
       {
         name: "description",
-        content: "تطبيق فردي لإدارة محفظة العملاء والتواصل معهم عبر الاتصال والواتساب.",
+        content: "A web application for managing collections, featuring user authentication, data import/export, and administrative tools.",
       },
-      { property: "og:title", content: "إدارة محفظة العملاء" },
+      { property: "og:title", content: "إدارة طلبات الإعفاء وإعادة الجدولة" },
       {
         property: "og:description",
-        content: "تطبيق فردي لإدارة محفظة العملاء ومتابعة التحصيل.",
+        content: "A web application for managing collections, featuring user authentication, data import/export, and administrative tools.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

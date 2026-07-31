@@ -76,16 +76,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover",
       },
-      { title: "التحصيل الذكي" },
-      { name: "description", content: "نظام لإدارة محفظة التحصيل للديون المعدومة" },
+      { title: "إدارة طلبات الإعفاء وإعادة الجدولة" },
+      { name: "description", content: "A web application for managing collections, featuring user authentication, data import/export, and administrative tools." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "التحصيل الذكي" },
-      { property: "og:description", content: "نظام لإدارة محفظة التحصيل للديون المعدومة" },
+      { property: "og:title", content: "إدارة طلبات الإعفاء وإعادة الجدولة" },
+      { property: "og:description", content: "A web application for managing collections, featuring user authentication, data import/export, and administrative tools." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "التحصيل الذكي" },
-      { name: "twitter:description", content: "نظام لإدارة محفظة التحصيل للديون المعدومة" },
+      { name: "twitter:title", content: "إدارة طلبات الإعفاء وإعادة الجدولة" },
+      { name: "twitter:description", content: "A web application for managing collections, featuring user authentication, data import/export, and administrative tools." },
       {
         property: "og:image",
         content:
@@ -99,12 +99,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         property: "og:image",
         content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/ZXGs0DQqPnUdno3heOyjtMPJYtS2/social-images/social-1781854238247-006072DD-792C-425B-9505-71B3AD3FD635.webp",
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/xeHIaQckKvWQCyzyTDLyprVolHu1/social-images/social-1780998596215-006072DD-792C-425B-9505-71B3AD3FD635.webp",
       },
       {
         name: "twitter:image",
         content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/ZXGs0DQqPnUdno3heOyjtMPJYtS2/social-images/social-1781854238247-006072DD-792C-425B-9505-71B3AD3FD635.webp",
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/xeHIaQckKvWQCyzyTDLyprVolHu1/social-images/social-1780998596215-006072DD-792C-425B-9505-71B3AD3FD635.webp",
       },
     ],
     links: [
