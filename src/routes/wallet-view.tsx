@@ -731,7 +731,7 @@ function WalletViewPage() {
           </div>
         )}
 
-        </div>
+
       </main>
     </div>
   );
