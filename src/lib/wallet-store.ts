@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import type { Customer, CustomerState, ContactLog } from "./wallet-types";
 import { customerKey } from "./wallet-types";
+import { UNIFIED_KEYS } from "./unified-columns";
 import { getSession } from "@/components/LoginGate";
 import defaultData from "@/data/wallet.json";
 import { getWalletCustomers } from "./wallet-read.functions";
@@ -10,7 +11,7 @@ import { clearWalletCustomers, appendWalletCustomers } from "./wallet-write.func
 
 type Meta = { fileName?: string; uploadedAt?: string; count: number };
 
-const ARABIC_FIELDS: (keyof Customer)[] = [
+const BASE_ARABIC_FIELDS: string[] = [
   "رقم الحساب",
   "مبلغ المديونية",
   "NOTE",
@@ -66,7 +67,7 @@ const ARABIC_FIELDS: (keyof Customer)[] = [
   "رقم الطلب في نظام سيبل",
 ];
 
-const RAW_ONLY_FIELDS: (keyof Customer | "ID AGENT")[] = [
+const BASE_RAW_ONLY_FIELDS: string[] = [
   "NOTE",
   "Note",
   "الاكشن",
@@ -101,6 +102,14 @@ const RAW_ONLY_FIELDS: (keyof Customer | "ID AGENT")[] = [
   "حالة الطلب الفرعية",
   "ID AGENT",
 ];
+
+// Every unified column MUST survive both the DB round-trip and the raw payload,
+// otherwise imported columns silently disappear after upload.
+const uniq = (arr: string[]) => Array.from(new Set(arr));
+const ARABIC_FIELDS: string[] = uniq([...UNIFIED_KEYS, ...BASE_ARABIC_FIELDS]);
+const RAW_ONLY_FIELDS: string[] = uniq([...UNIFIED_KEYS, ...BASE_RAW_ONLY_FIELDS]);
+
+
 
 function hasValue(v: unknown) {
   return v != null && String(v).trim() !== "";
@@ -160,7 +169,11 @@ function customerToDbRow(c: Customer, importedBy: string | null) {
       return true;
     return s.startsWith("YES") || s.startsWith("TRUE");
   };
-  const key = customerKey(c);
+  // A customer can have several requests (إعفاء / جدولة) — include the request
+  // number in the key so those rows are not deduplicated away on upload.
+  const reqNo = (c as any)["رقم الطلب"] ?? (c as any)["رقم طلب سبيل"];
+  const baseKey = customerKey(c);
+  const key = baseKey ? (reqNo ? `${baseKey}#${reqNo}` : baseKey) : "";
   const amt = c["مبلغ المديونية"] ?? c["المبلغ"];
   return {
     customer_key: String(key),
