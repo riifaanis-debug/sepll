@@ -70,10 +70,8 @@ export function CollectorDashboard({
 
   return (
     <div className="flex flex-col gap-3 w-full" dir="rtl">
-      {/* Card 1: Actions */}
+      {/* Actions */}
 
-
-      {/* Card 2: Actions */}
       <div className={cardCls}>
         <div className="grid grid-cols-3 gap-2.5">
           <button
