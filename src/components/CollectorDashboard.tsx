@@ -1,10 +1,5 @@
-import {
-  Wallet,
-  FileText,
-  FileMinus,
-  CalendarClock,
-  MousePointerClick,
-} from "lucide-react";
+import { Wallet, FileMinus, CalendarClock } from "lucide-react";
+
 
 export type QuickKey =
   | "exemptions"
