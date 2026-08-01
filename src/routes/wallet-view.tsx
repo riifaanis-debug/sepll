@@ -353,6 +353,21 @@ function WalletViewPage() {
     });
   }, [colFiltered, q, states, activeColumns]);
 
+  // Render in chunks — rendering thousands of rows at once freezes/crashes mobile browsers.
+  const PAGE_SIZE = 100;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [q, view, colFilters, rows]);
+
+  const visibleRows = useMemo(
+    () => filtered.slice(0, visibleCount),
+    [filtered, visibleCount],
+  );
+
+
+
   const setEdit = (key: string, col: string, value: any) => {
     const cur = states[key]?.edits || {};
     update(key, { edits: { ...cur, [col]: value } });
