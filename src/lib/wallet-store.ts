@@ -10,7 +10,7 @@ import { clearWalletCustomers, appendWalletCustomers } from "./wallet-write.func
 
 type Meta = { fileName?: string; uploadedAt?: string; count: number };
 
-const ARABIC_FIELDS: (keyof Customer)[] = [
+const BASE_ARABIC_FIELDS: string[] = [
   "رقم الحساب",
   "مبلغ المديونية",
   "NOTE",
