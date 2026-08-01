@@ -55,6 +55,8 @@ export function CollectorDashboard({
   void filteredCC;
   void filteredSalary;
   void filteredDeceased;
+  void filteredSibel;
+
   void employeeId;
   void onCollectedClick;
 
