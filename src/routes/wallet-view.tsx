@@ -717,6 +717,21 @@ function WalletViewPage() {
             </Table>
           )}
         </div>
+
+        {!loading && !error && visibleRows.length < filtered.length && (
+          <div className="flex justify-center py-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setVisibleCount((c) => c + 100)}
+            >
+              عرض المزيد ({visibleRows.length.toLocaleString("en-US")} /{" "}
+              {filtered.length.toLocaleString("en-US")})
+            </Button>
+          </div>
+        )}
+
+        </div>
       </main>
     </div>
   );
