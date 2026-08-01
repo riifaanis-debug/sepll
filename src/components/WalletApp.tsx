@@ -319,6 +319,7 @@ export default function WalletApp() {
     let death = 0;
     let salary = 0;
     let promise = 0;
+    let fr = 0;
     let pf = 0;
     let al = 0;
     let cc = 0;
@@ -330,7 +331,8 @@ export default function WalletApp() {
       total += amt;
 
       const p = String(c["نوع المنتج"] ?? c["المنتج"] ?? "").toUpperCase();
-      if (p.includes("PF")) pf++;
+      if (p.includes("FR")) fr++;
+      else if (p.includes("PF")) pf++;
       else if (p.includes("AL")) al++;
       else if (p.includes("CC")) cc++;
 
@@ -351,6 +353,7 @@ export default function WalletApp() {
       death,
       salary,
       promise,
+      fr,
       pf,
       al,
       cc,
@@ -388,6 +391,7 @@ export default function WalletApp() {
 
   const filteredStats = useMemo(() => {
     let balance = 0;
+    let fr = 0;
     let pf = 0;
     let al = 0;
     let cc = 0;
@@ -400,7 +404,8 @@ export default function WalletApp() {
       balance += amt;
 
       const p = String(c["نوع المنتج"] ?? c["المنتج"] ?? "").toUpperCase();
-      if (p.includes("PF")) pf++;
+      if (p.includes("FR")) fr++;
+      else if (p.includes("PF")) pf++;
       else if (p.includes("AL")) al++;
       else if (p.includes("CC")) cc++;
 
@@ -411,6 +416,7 @@ export default function WalletApp() {
 
     return {
       balance,
+      fr,
       pf,
       al,
       cc,
@@ -555,17 +561,29 @@ export default function WalletApp() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-1.5">
-            <div className="rounded-md border bg-muted/30 px-2 py-2 flex flex-col items-center gap-0.5">
+          <div className="grid grid-cols-4 gap-1.5">
+            <div className="rounded-md border bg-muted/30 px-1 py-2 flex flex-col items-center gap-0.5">
+              <div className="text-[11px] font-bold text-[#10b981]">FR</div>
+              <div className="text-sm font-extrabold tabular-nums">
+                {stats.fr} <span className="text-[11px] font-bold">حساب</span>
+              </div>
+            </div>
+            <div className="rounded-md border bg-muted/30 px-1 py-2 flex flex-col items-center gap-0.5">
+              <div className="text-[11px] font-bold text-[#3b82f6]">AL</div>
+              <div className="text-sm font-extrabold tabular-nums">
+                {stats.al} <span className="text-[11px] font-bold">حساب</span>
+              </div>
+            </div>
+            <div className="rounded-md border bg-muted/30 px-1 py-2 flex flex-col items-center gap-0.5">
               <div className="text-[11px] font-bold text-[#f59e0b]">PF</div>
               <div className="text-sm font-extrabold tabular-nums">
                 {stats.pf} <span className="text-[11px] font-bold">حساب</span>
               </div>
             </div>
-            <div className="rounded-md border bg-muted/30 px-2 py-2 flex flex-col items-center gap-0.5">
-              <div className="text-[11px] font-bold text-[#3b82f6]">AL</div>
+            <div className="rounded-md border bg-muted/30 px-1 py-2 flex flex-col items-center gap-0.5">
+              <div className="text-[11px] font-bold text-[#8b5cf6]">CC</div>
               <div className="text-sm font-extrabold tabular-nums">
-                {stats.al} <span className="text-[11px] font-bold">حساب</span>
+                {stats.cc} <span className="text-[11px] font-bold">حساب</span>
               </div>
             </div>
           </div>
