@@ -561,17 +561,29 @@ export default function WalletApp() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-1.5">
-            <div className="rounded-md border bg-muted/30 px-2 py-2 flex flex-col items-center gap-0.5">
+          <div className="grid grid-cols-4 gap-1.5">
+            <div className="rounded-md border bg-muted/30 px-1 py-2 flex flex-col items-center gap-0.5">
+              <div className="text-[11px] font-bold text-[#10b981]">FR</div>
+              <div className="text-sm font-extrabold tabular-nums">
+                {stats.fr} <span className="text-[11px] font-bold">حساب</span>
+              </div>
+            </div>
+            <div className="rounded-md border bg-muted/30 px-1 py-2 flex flex-col items-center gap-0.5">
+              <div className="text-[11px] font-bold text-[#3b82f6]">AL</div>
+              <div className="text-sm font-extrabold tabular-nums">
+                {stats.al} <span className="text-[11px] font-bold">حساب</span>
+              </div>
+            </div>
+            <div className="rounded-md border bg-muted/30 px-1 py-2 flex flex-col items-center gap-0.5">
               <div className="text-[11px] font-bold text-[#f59e0b]">PF</div>
               <div className="text-sm font-extrabold tabular-nums">
                 {stats.pf} <span className="text-[11px] font-bold">حساب</span>
               </div>
             </div>
-            <div className="rounded-md border bg-muted/30 px-2 py-2 flex flex-col items-center gap-0.5">
-              <div className="text-[11px] font-bold text-[#3b82f6]">AL</div>
+            <div className="rounded-md border bg-muted/30 px-1 py-2 flex flex-col items-center gap-0.5">
+              <div className="text-[11px] font-bold text-[#8b5cf6]">CC</div>
               <div className="text-sm font-extrabold tabular-nums">
-                {stats.al} <span className="text-[11px] font-bold">حساب</span>
+                {stats.cc} <span className="text-[11px] font-bold">حساب</span>
               </div>
             </div>
           </div>
