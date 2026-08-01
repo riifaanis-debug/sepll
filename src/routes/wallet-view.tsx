@@ -467,7 +467,7 @@ function WalletViewPage() {
               </TableHeader>
 
               <TableBody>
-                {filtered.map((row, i) => {
+                {visibleRows.map((row, i) => {
                   const key = rowKey(row);
                   const st = states[key];
                   const rowColor = st?.edits?.__rowColor as string | undefined;
