@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import type { Customer, CustomerState, ContactLog } from "./wallet-types";
 import { customerKey } from "./wallet-types";
+import { UNIFIED_KEYS } from "./unified-columns";
 import { getSession } from "@/components/LoginGate";
 import defaultData from "@/data/wallet.json";
 import { getWalletCustomers } from "./wallet-read.functions";
