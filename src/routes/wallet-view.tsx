@@ -353,6 +353,21 @@ function WalletViewPage() {
     });
   }, [colFiltered, q, states, activeColumns]);
 
+  // Render in chunks — rendering thousands of rows at once freezes/crashes mobile browsers.
+  const PAGE_SIZE = 100;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [q, view, colFilters, rows]);
+
+  const visibleRows = useMemo(
+    () => filtered.slice(0, visibleCount),
+    [filtered, visibleCount],
+  );
+
+
+
   const setEdit = (key: string, col: string, value: any) => {
     const cur = states[key]?.edits || {};
     update(key, { edits: { ...cur, [col]: value } });
@@ -452,7 +467,7 @@ function WalletViewPage() {
               </TableHeader>
 
               <TableBody>
-                {filtered.map((row, i) => {
+                {visibleRows.map((row, i) => {
                   const key = rowKey(row);
                   const st = states[key];
                   const rowColor = st?.edits?.__rowColor as string | undefined;
@@ -702,6 +717,21 @@ function WalletViewPage() {
             </Table>
           )}
         </div>
+
+        {!loading && !error && visibleRows.length < filtered.length && (
+          <div className="flex justify-center py-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setVisibleCount((c) => c + 100)}
+            >
+              عرض المزيد ({visibleRows.length.toLocaleString("en-US")} /{" "}
+              {filtered.length.toLocaleString("en-US")})
+            </Button>
+          </div>
+        )}
+
+
       </main>
     </div>
   );
