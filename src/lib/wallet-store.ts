@@ -169,7 +169,11 @@ function customerToDbRow(c: Customer, importedBy: string | null) {
       return true;
     return s.startsWith("YES") || s.startsWith("TRUE");
   };
-  const key = customerKey(c);
+  // A customer can have several requests (إعفاء / جدولة) — include the request
+  // number in the key so those rows are not deduplicated away on upload.
+  const reqNo = (c as any)["رقم الطلب"] ?? (c as any)["رقم طلب سبيل"];
+  const baseKey = customerKey(c);
+  const key = baseKey ? (reqNo ? `${baseKey}#${reqNo}` : baseKey) : "";
   const amt = c["مبلغ المديونية"] ?? c["المبلغ"];
   return {
     customer_key: String(key),
