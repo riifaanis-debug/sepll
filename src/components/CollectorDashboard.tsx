@@ -1,10 +1,5 @@
-import {
-  Wallet,
-  FileText,
-  FileMinus,
-  CalendarClock,
-  MousePointerClick,
-} from "lucide-react";
+import { Wallet, FileMinus, CalendarClock } from "lucide-react";
+
 
 export type QuickKey =
   | "exemptions"
@@ -60,6 +55,8 @@ export function CollectorDashboard({
   void filteredCC;
   void filteredSalary;
   void filteredDeceased;
+  void filteredSibel;
+
   void employeeId;
   void onCollectedClick;
 
@@ -70,28 +67,8 @@ export function CollectorDashboard({
 
   return (
     <div className="flex flex-col gap-3 w-full" dir="rtl">
-      {/* Card 1: Portfolio Overview */}
-      <div className={cardCls}>
-        <button
-          type="button"
-          onClick={() => onSelectAction("sibel")}
-          className="rounded-[14px] px-3 py-2.5 flex items-center justify-between w-full cursor-pointer select-none text-[#133E35] font-sans text-right bg-[#f3e9c7]/70 hover:bg-[#ecdfb1]/80 active:scale-95 transition-all shadow-sm border border-[#e8dbab]/60"
-        >
-          <div className="flex items-center gap-2">
-            <FileText className="size-3.5 text-[#f59e0b]" />
-            <span className="text-[10.5px] font-bold text-[#133E35] text-right">
-              عملاء لديهم طلبات سابقة
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5 text-[10.5px] text-[#234E45] font-bold tabular-nums">
-            <MousePointerClick className="size-3.5 text-[#3b82f6]" />
-            <span className="text-[#133E35] font-black inline-block ml-1">{filteredSibel}</span>
-            حساب
-          </div>
-        </button>
-      </div>
+      {/* Actions */}
 
-      {/* Card 2: Actions */}
       <div className={cardCls}>
         <div className="grid grid-cols-3 gap-2.5">
           <button

@@ -283,20 +283,12 @@ function WalletViewPage() {
   }, [loadFn, view]);
 
   const viewRows = useMemo(() => {
-    const session = getSession();
-    if (!session) return [];
-
-    const collectorRows = rows.filter((row) => isCurrentCollectorRow(row, session));
-
-    if (view === "wallet") {
+    // Single-user mode: every view works on the full imported wallet.
+    if (view === "wallet" || view === "my-wallet") {
       return rows;
     }
 
-    if (view === "my-wallet") {
-      return collectorRows;
-    }
-
-    return collectorRows.filter((row) => {
+    return rows.filter((row) => {
       const st = states[rowKey(row)];
 
       switch (view) {
@@ -308,11 +300,8 @@ function WalletViewPage() {
 
         case "sibel":
           return (
-            isFilled(st?.edits?.["رقم طلب سبيل"] ?? rawCellValue(row, "رقم طلب سبيل")) ||
-            isFilled(rawCellValue(row, "رقم طلب سيبل")) ||
-            isFilled(rawCellValue(row, "رقم الطلب في نظام سيبل")) ||
-            isFilled(st?.edits?.["نوع الطلب"] ?? rawCellValue(row, "نوع الطلب")) ||
-            isFilled(rawCellValue(row, "طلب الطلب"))
+            isFilled(st?.edits?.["رقم الطلب"] ?? rawCellValue(row, "رقم الطلب")) ||
+            isFilled(st?.edits?.["نوع الطلب"] ?? rawCellValue(row, "نوع الطلب"))
           );
 
         case "promises":
@@ -329,6 +318,7 @@ function WalletViewPage() {
       }
     });
   }, [rows, states, view]);
+
 
   const activeColumns = COLUMNS;
 
