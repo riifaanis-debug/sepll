@@ -102,6 +102,14 @@ const BASE_RAW_ONLY_FIELDS: string[] = [
   "ID AGENT",
 ];
 
+// Every unified column MUST survive both the DB round-trip and the raw payload,
+// otherwise imported columns silently disappear after upload.
+const uniq = (arr: string[]) => Array.from(new Set(arr));
+const ARABIC_FIELDS: string[] = uniq([...UNIFIED_KEYS, ...BASE_ARABIC_FIELDS]);
+const RAW_ONLY_FIELDS: string[] = uniq([...UNIFIED_KEYS, ...BASE_RAW_ONLY_FIELDS]);
+
+
+
 function hasValue(v: unknown) {
   return v != null && String(v).trim() !== "";
 }
