@@ -66,7 +66,7 @@ const BASE_ARABIC_FIELDS: string[] = [
   "رقم الطلب في نظام سيبل",
 ];
 
-const RAW_ONLY_FIELDS: (keyof Customer | "ID AGENT")[] = [
+const BASE_RAW_ONLY_FIELDS: string[] = [
   "NOTE",
   "Note",
   "الاكشن",
