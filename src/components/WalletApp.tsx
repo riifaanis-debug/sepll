@@ -391,6 +391,7 @@ export default function WalletApp() {
 
   const filteredStats = useMemo(() => {
     let balance = 0;
+    let fr = 0;
     let pf = 0;
     let al = 0;
     let cc = 0;
@@ -403,7 +404,8 @@ export default function WalletApp() {
       balance += amt;
 
       const p = String(c["نوع المنتج"] ?? c["المنتج"] ?? "").toUpperCase();
-      if (p.includes("PF")) pf++;
+      if (p.includes("FR")) fr++;
+      else if (p.includes("PF")) pf++;
       else if (p.includes("AL")) al++;
       else if (p.includes("CC")) cc++;
 
@@ -414,6 +416,7 @@ export default function WalletApp() {
 
     return {
       balance,
+      fr,
       pf,
       al,
       cc,
