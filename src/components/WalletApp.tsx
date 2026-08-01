@@ -319,6 +319,7 @@ export default function WalletApp() {
     let death = 0;
     let salary = 0;
     let promise = 0;
+    let fr = 0;
     let pf = 0;
     let al = 0;
     let cc = 0;
@@ -330,7 +331,8 @@ export default function WalletApp() {
       total += amt;
 
       const p = String(c["نوع المنتج"] ?? c["المنتج"] ?? "").toUpperCase();
-      if (p.includes("PF")) pf++;
+      if (p.includes("FR")) fr++;
+      else if (p.includes("PF")) pf++;
       else if (p.includes("AL")) al++;
       else if (p.includes("CC")) cc++;
 
@@ -351,6 +353,7 @@ export default function WalletApp() {
       death,
       salary,
       promise,
+      fr,
       pf,
       al,
       cc,
