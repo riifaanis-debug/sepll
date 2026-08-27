@@ -1281,15 +1281,23 @@ function CustomerSheet({
                     </div>
                   </div>
 
-                  {/* صف الشارات: تقييم أعمال | عميل متوفي | عميل رواتب — YES/NO */}
+                  {/* صف الشارات: نوع الإعفاء | عميل متوفي | عميل رواتب */}
                   <div className="grid grid-cols-3 gap-2">
-                    <YesNoPill
-                      label="تقييم أعمال"
-                      icon={<BarChart3 className="size-3.5 text-[#7B3FE4]" />}
-                      tone="purple"
-                      value={isOn("تقييم أعمال") ? "yes" : (get("تقييم أعمال") || get("تقييم الأعمال")) ? "no" : null}
-                      onChange={(v) => setEdit({ "تقييم أعمال": v === "yes" ? "نعم" : "لا", "تقييم الأعمال": v === "yes" ? "نعم" : "لا" })}
-                    />
+                    <EditField label="نوع الإعفاء" icon={<BarChart3 className="size-3" />}>
+                      <Select
+                        value={String(get("نوع الإعفاء") || "")}
+                        onValueChange={(v) => setEdit({ "نوع الإعفاء": v })}
+                      >
+                        <SelectTrigger className={`${inputCls} justify-center`}>
+                          <SelectValue placeholder="—" />
+                        </SelectTrigger>
+                        <SelectContent dir="rtl">
+                          <SelectItem value="عجز" className="text-[12px]">عجز</SelectItem>
+                          <SelectItem value="وفاة" className="text-[12px]">وفاة</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </EditField>
+
                     <YesNoPill
                       label="عميل متوفي"
                       icon={<UserX className="size-3.5 text-[#E11D48]" />}
