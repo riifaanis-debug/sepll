@@ -5,12 +5,12 @@ import { Toaster } from "@/components/ui/sonner";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "إدارة طلبات الإعفاء وإعادة الجدولة" },
+      { title: "إدارة ومعالجة طلبات الإعفاء والجدولة" },
       {
         name: "description",
         content: "A web application for managing collections, featuring user authentication, data import/export, and administrative tools.",
       },
-      { property: "og:title", content: "إدارة طلبات الإعفاء وإعادة الجدولة" },
+      { property: "og:title", content: "إدارة ومعالجة طلبات الإعفاء والجدولة" },
       {
         property: "og:description",
         content: "A web application for managing collections, featuring user authentication, data import/export, and administrative tools.",

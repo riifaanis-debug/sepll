@@ -76,15 +76,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover",
       },
-      { title: "إدارة طلبات الإعفاء وإعادة الجدولة" },
+      { title: "إدارة ومعالجة طلبات الإعفاء والجدولة" },
       { name: "description", content: "A web application for managing collections, featuring user authentication, data import/export, and administrative tools." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "إدارة طلبات الإعفاء وإعادة الجدولة" },
+      { property: "og:title", content: "إدارة ومعالجة طلبات الإعفاء والجدولة" },
       { property: "og:description", content: "A web application for managing collections, featuring user authentication, data import/export, and administrative tools." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "إدارة طلبات الإعفاء وإعادة الجدولة" },
+      { name: "twitter:title", content: "إدارة ومعالجة طلبات الإعفاء والجدولة" },
       { name: "twitter:description", content: "A web application for managing collections, featuring user authentication, data import/export, and administrative tools." },
       {
         property: "og:image",

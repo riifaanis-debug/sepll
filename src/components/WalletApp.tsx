@@ -472,7 +472,7 @@ export default function WalletApp() {
             <Wallet className="size-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-bold leading-tight truncate">إدارة المحفظة</h1>
+            <h1 className="text-lg font-bold leading-tight truncate">إدارة ومعالجة طلبات الإعفاء والجدولة</h1>
             <HeaderDateTime />
           </div>
           <input
