@@ -8,7 +8,6 @@ import {
   RotateCcw,
   Users,
   Wallet,
-  AlertTriangle,
   BadgeCheck,
   X,
   Filter,
@@ -1172,7 +1171,6 @@ function CustomerSheet({
                 setDirty(true);
                 onUpdate({ edits: { ...(state?.edits || {}), ...patch } });
               };
-              const currentAction = (get("الاكشن") as string) || "";
               const rawRequestType = String(get("نوع الطلب") || get("طلب الطلب") || "").trim();
               const hasRescheduleFromBase = /جدول|جدولة/.test(rawRequestType);
               const hasExemptionFromBase = /إعفاء|اعفاء/.test(rawRequestType);
@@ -1235,7 +1233,7 @@ function CustomerSheet({
                 <div className="space-y-2 text-right font-sans" dir="rtl">
                   {/* الصف 1: رقم الحساب | نوع المنتج */}
                   <div className="rounded-xl border border-[#e8e6e1] bg-white p-1.5 space-y-1.5">
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                       <EditField label="رقم الحساب" icon={<CreditCard className="size-3" />}>
                         <Input
                           value={get("رقم الحساب") || ""}
@@ -1255,46 +1253,10 @@ function CustomerSheet({
                           className={`${inputCls} cursor-default text-center font-bold`}
                         />
                       </EditField>
-                      <EditField label="NOTE" icon={<FileText className="size-3" />}>
-                        <Input
-                          value={String(get("NOTE") ?? get("Note") ?? get("note") ?? get("ملاحظة") ?? "")}
-                          readOnly
-                          inputMode="none"
-                          onFocus={(e) => e.currentTarget.blur()}
-                          className={`${inputCls} cursor-default text-center`}
-                        />
-                      </EditField>
                     </div>
 
-                    <div className="grid grid-cols-[1.18fr_0.82fr_1.25fr] gap-1.5">
-                      <EditField label="الأكشن" icon={<Target className="size-3" />}>
-                        <Select value={currentAction} onValueChange={(v) => setEdit({ الاكشن: v })}>
-                          <SelectTrigger
-                            className={`${inputCls} justify-end text-right flex-row-reverse`}
-                            style={currentAction ? actionStyle(currentAction) : undefined}
-                          >
-                            <SelectValue placeholder="" />
-                          </SelectTrigger>
-                          <SelectContent dir="rtl" className="min-w-[140px]">
-                            {ACTION_OPTIONS.map((a) => (
-                              <SelectItem
-                                key={a.value}
-                                value={a.value}
-                                className="text-[12px] flex justify-end text-right w-full font-bold cursor-pointer"
-                                style={{ color: a.color }}
-                              >
-                                <span className="flex items-center gap-2 w-full justify-end text-right">
-                                  <span>{a.label}</span>
-                                  <span
-                                    className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
-                                    style={{ backgroundColor: a.color }}
-                                  />
-                                </span>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </EditField>
+                    <div className="grid grid-cols-2 gap-1.5">
+
                       <EditField label="رقم الهوية" icon={<IdCard className="size-3" />}>
                         <Input
                           value={get("رقم الهوية") || ""}
@@ -1317,15 +1279,23 @@ function CustomerSheet({
                     </div>
                   </div>
 
-                  {/* صف الشارات: تقييم أعمال | عميل متوفي | عميل رواتب — YES/NO */}
+                  {/* صف الشارات: نوع الإعفاء | عميل متوفي | عميل رواتب */}
                   <div className="grid grid-cols-3 gap-2">
-                    <YesNoPill
-                      label="تقييم أعمال"
-                      icon={<BarChart3 className="size-3.5 text-[#7B3FE4]" />}
-                      tone="purple"
-                      value={isOn("تقييم أعمال") ? "yes" : (get("تقييم أعمال") || get("تقييم الأعمال")) ? "no" : null}
-                      onChange={(v) => setEdit({ "تقييم أعمال": v === "yes" ? "نعم" : "لا", "تقييم الأعمال": v === "yes" ? "نعم" : "لا" })}
-                    />
+                    <EditField label="نوع الإعفاء" icon={<BarChart3 className="size-3" />}>
+                      <Select
+                        value={String(get("نوع الإعفاء") || "")}
+                        onValueChange={(v) => setEdit({ "نوع الإعفاء": v })}
+                      >
+                        <SelectTrigger className={`${inputCls} justify-center`}>
+                          <SelectValue placeholder="—" />
+                        </SelectTrigger>
+                        <SelectContent dir="rtl">
+                          <SelectItem value="عجز" className="text-[12px]">عجز</SelectItem>
+                          <SelectItem value="وفاة" className="text-[12px]">وفاة</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </EditField>
+
                     <YesNoPill
                       label="عميل متوفي"
                       icon={<UserX className="size-3.5 text-[#E11D48]" />}
@@ -1459,21 +1429,8 @@ function CustomerSheet({
                     </EditField>
                   </div>
 
-                  {/* صف الحاسبات: حاسبة التاريخ (يمين) | حاسبة الخصم (يسار) */}
-                  <DualCalculators
-                    debtAmount={Number(c["مبلغ المديونية"] ?? c["المبلغ"]) || 0}
-                    freezeDate={defaultDate}
-                    policyRate={settlement?.rate ?? null}
-                    customerKey={c["رقم الحساب"] || ""}
-                  />
 
-                  {/* ملاحظة أسفل الحاسبات */}
-                  <div className="flex items-start gap-1.5 text-[10px] text-[#7A6A4F] bg-[#FFFBEB] border border-[#FDE68A] rounded-lg p-2">
-                    <AlertTriangle className="size-3 mt-0.5 text-[#D97706] shrink-0" />
-                    <p className="leading-snug text-right">
-                      مبلغ التسوية النهائي الصادر هو بشكل تقريبي، يرجى التأكد من تاريخ التجميد المدون في شاشة NBL وبسياسة الخصم المتبعة للشهر الحالي.
-                    </p>
-                  </div>
+
 
                   {/* الصف: رقم القضية | اسم المحكمة | أرصدة محجوزة */}
                   <div className="grid grid-cols-3 gap-2">
@@ -2019,139 +1976,3 @@ function YesNoPill({
   );
 }
 
-const DISCOUNT_RATES = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
-
-function DualCalculators({
-  debtAmount,
-  freezeDate,
-  policyRate,
-  customerKey,
-}: {
-  debtAmount: number;
-  freezeDate: string;
-  policyRate: number | null;
-  customerKey: string;
-}) {
-  const initialPct = policyRate != null ? Math.round(policyRate * 100) : 25;
-  const [rate, setRate] = useState<number>(initialPct);
-  const [extraApplied, setExtraApplied] = useState<boolean>(false);
-
-  // Reset to policy-derived rate when opening a different customer or when policy rate changes
-  useEffect(() => {
-    setRate(policyRate != null ? Math.round(policyRate * 100) : 25);
-    setExtraApplied(false);
-  }, [customerKey, policyRate]);
-
-  const today = new Date();
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-
-  const days = useMemo(() => {
-    if (!freezeDate) return 0;
-    const fd = new Date(freezeDate);
-    if (isNaN(fd.getTime())) return 0;
-    return Math.max(0, Math.floor((today.getTime() - fd.getTime()) / (1000 * 60 * 60 * 24)));
-  }, [freezeDate, today]);
-
-  const years = days / 365;
-  const discountAmount = debtAmount * (rate / 100);
-  const settlementAmount = debtAmount - discountAmount;
-
-  const addExtra = () => {
-    if (extraApplied) return;
-    const next = Math.min(rate + 5, 80);
-    setRate(next);
-    setExtraApplied(true);
-  };
-
-  const fmt = (n: number) =>
-    n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-  return (
-    <div className="grid grid-cols-2 gap-1.5" dir="rtl">
-      {/* حاسبة التاريخ — يمين */}
-      <div className="rounded-xl border border-[#e8e6e1] bg-white p-1.5 space-y-1.5">
-        <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-[#234E45] pb-1 border-b border-dashed border-[#e8e6e1]">
-          <Calendar className="size-3.5" />
-          <span>حاسبة التاريخ</span>
-        </div>
-        <div className="grid grid-cols-2 gap-1.5">
-          <div className="space-y-0.5">
-            <div className="text-[9px] text-[#5a6b63] text-right">تاريخ التجميد</div>
-            <div className="h-7 rounded-md bg-[#FAFAFA] border border-[#e8e6e1] text-[10px] tabular-nums flex items-center justify-center font-semibold">
-              {freezeDate || "—"}
-            </div>
-          </div>
-          <div className="space-y-0.5">
-            <div className="text-[9px] text-[#5a6b63] text-right">تاريخ اليوم</div>
-            <div className="h-7 rounded-md bg-[#FAFAFA] border border-[#e8e6e1] text-[10px] tabular-nums flex items-center justify-center font-semibold">
-              {todayStr}
-            </div>
-          </div>
-          <div className="space-y-0.5">
-            <div className="text-[9px] text-[#5a6b63] text-right">عدد أيام التأخير</div>
-            <div className="h-7 rounded-md bg-[#FAFAFA] border border-[#e8e6e1] text-[10px] tabular-nums flex items-center justify-center font-bold text-[#234E45]">
-              {days || "—"}
-            </div>
-          </div>
-          <div className="space-y-0.5">
-            <div className="text-[9px] text-[#5a6b63] text-right">عدد السنوات</div>
-            <div className="h-7 rounded-md bg-[#FAFAFA] border border-[#e8e6e1] text-[10px] tabular-nums flex items-center justify-center font-bold text-[#234E45]">
-              {years ? years.toFixed(2) : "—"}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* حاسبة الخصم — يسار */}
-      <div className="rounded-xl border border-[#e8e6e1] bg-white p-1.5 space-y-1.5">
-        <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-[#7B3FE4] pb-1 border-b border-dashed border-[#e8e6e1]">
-          <Calculator className="size-3.5" />
-          <span>حاسبة الخصم</span>
-        </div>
-        <div className="grid grid-cols-[1.45fr_0.65fr] gap-1.5">
-          <div className="space-y-0.5">
-            <div className="text-[8.5px] text-[#5a6b63] text-right">المبلغ</div>
-            <div className="h-7 rounded-md bg-[#FAFAFA] border border-[#e8e6e1] text-[9.5px] tabular-nums flex items-center justify-center font-semibold whitespace-nowrap leading-none">
-              {fmt(debtAmount)} SAR
-            </div>
-          </div>
-          <div className="space-y-0.5">
-            <div className="text-[8.5px] text-[#5a6b63] text-right">نسبة الخصم %</div>
-            <Select value={String(rate)} onValueChange={(v) => { setRate(Number(v)); setExtraApplied(false); }}>
-              <SelectTrigger className="h-7 text-[9.5px] text-center bg-white border border-[#e8e6e1] rounded-md px-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent dir="rtl">
-                {DISCOUNT_RATES.map((r) => (
-                  <SelectItem key={r} value={String(r)} className="text-[11px]">{r}%</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={addExtra}
-          disabled={extraApplied || rate >= 80}
-          className="w-full h-6 rounded-md border border-emerald-300 bg-emerald-50 text-emerald-700 text-[9px] font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-emerald-100 transition-colors"
-        >
-          + إضافة 5% خصم إضافي
-        </button>
-        <div className="space-y-1.5">
-          <div className="space-y-0.5">
-            <div className="text-[8.5px] text-[#5a6b63] text-right">مبلغ الخصم</div>
-            <div className="h-7 rounded-md bg-[#FAFAFA] border border-[#e8e6e1] text-[9.5px] tabular-nums flex items-center justify-center font-bold text-[#E11D48] whitespace-nowrap leading-none">
-              {fmt(discountAmount)} SAR
-            </div>
-          </div>
-          <div className="space-y-0.5">
-            <div className="text-[8.5px] text-[#5a6b63] text-right">مبلغ التسوية</div>
-            <div className="h-7 rounded-md bg-[#FAFAFA] border border-[#e8e6e1] text-[9.5px] tabular-nums flex items-center justify-center font-bold text-[#0E8F4F] whitespace-nowrap leading-none">
-              {fmt(settlementAmount)} SAR
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
