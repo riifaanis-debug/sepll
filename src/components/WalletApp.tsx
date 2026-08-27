@@ -1235,7 +1235,7 @@ function CustomerSheet({
                 <div className="space-y-2 text-right font-sans" dir="rtl">
                   {/* الصف 1: رقم الحساب | نوع المنتج */}
                   <div className="rounded-xl border border-[#e8e6e1] bg-white p-1.5 space-y-1.5">
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                       <EditField label="رقم الحساب" icon={<CreditCard className="size-3" />}>
                         <Input
                           value={get("رقم الحساب") || ""}
@@ -1255,46 +1255,10 @@ function CustomerSheet({
                           className={`${inputCls} cursor-default text-center font-bold`}
                         />
                       </EditField>
-                      <EditField label="NOTE" icon={<FileText className="size-3" />}>
-                        <Input
-                          value={String(get("NOTE") ?? get("Note") ?? get("note") ?? get("ملاحظة") ?? "")}
-                          readOnly
-                          inputMode="none"
-                          onFocus={(e) => e.currentTarget.blur()}
-                          className={`${inputCls} cursor-default text-center`}
-                        />
-                      </EditField>
                     </div>
 
-                    <div className="grid grid-cols-[1.18fr_0.82fr_1.25fr] gap-1.5">
-                      <EditField label="الأكشن" icon={<Target className="size-3" />}>
-                        <Select value={currentAction} onValueChange={(v) => setEdit({ الاكشن: v })}>
-                          <SelectTrigger
-                            className={`${inputCls} justify-end text-right flex-row-reverse`}
-                            style={currentAction ? actionStyle(currentAction) : undefined}
-                          >
-                            <SelectValue placeholder="" />
-                          </SelectTrigger>
-                          <SelectContent dir="rtl" className="min-w-[140px]">
-                            {ACTION_OPTIONS.map((a) => (
-                              <SelectItem
-                                key={a.value}
-                                value={a.value}
-                                className="text-[12px] flex justify-end text-right w-full font-bold cursor-pointer"
-                                style={{ color: a.color }}
-                              >
-                                <span className="flex items-center gap-2 w-full justify-end text-right">
-                                  <span>{a.label}</span>
-                                  <span
-                                    className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
-                                    style={{ backgroundColor: a.color }}
-                                  />
-                                </span>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </EditField>
+                    <div className="grid grid-cols-2 gap-1.5">
+
                       <EditField label="رقم الهوية" icon={<IdCard className="size-3" />}>
                         <Input
                           value={get("رقم الهوية") || ""}
