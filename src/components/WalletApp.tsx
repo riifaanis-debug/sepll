@@ -1431,21 +1431,8 @@ function CustomerSheet({
                     </EditField>
                   </div>
 
-                  {/* صف الحاسبات: حاسبة التاريخ (يمين) | حاسبة الخصم (يسار) */}
-                  <DualCalculators
-                    debtAmount={Number(c["مبلغ المديونية"] ?? c["المبلغ"]) || 0}
-                    freezeDate={defaultDate}
-                    policyRate={settlement?.rate ?? null}
-                    customerKey={c["رقم الحساب"] || ""}
-                  />
 
-                  {/* ملاحظة أسفل الحاسبات */}
-                  <div className="flex items-start gap-1.5 text-[10px] text-[#7A6A4F] bg-[#FFFBEB] border border-[#FDE68A] rounded-lg p-2">
-                    <AlertTriangle className="size-3 mt-0.5 text-[#D97706] shrink-0" />
-                    <p className="leading-snug text-right">
-                      مبلغ التسوية النهائي الصادر هو بشكل تقريبي، يرجى التأكد من تاريخ التجميد المدون في شاشة NBL وبسياسة الخصم المتبعة للشهر الحالي.
-                    </p>
-                  </div>
+
 
                   {/* الصف: رقم القضية | اسم المحكمة | أرصدة محجوزة */}
                   <div className="grid grid-cols-3 gap-2">
