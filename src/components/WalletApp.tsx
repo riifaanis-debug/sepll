@@ -8,7 +8,6 @@ import {
   RotateCcw,
   Users,
   Wallet,
-  AlertTriangle,
   BadgeCheck,
   X,
   Filter,
@@ -1172,7 +1171,6 @@ function CustomerSheet({
                 setDirty(true);
                 onUpdate({ edits: { ...(state?.edits || {}), ...patch } });
               };
-              const currentAction = (get("الاكشن") as string) || "";
               const rawRequestType = String(get("نوع الطلب") || get("طلب الطلب") || "").trim();
               const hasRescheduleFromBase = /جدول|جدولة/.test(rawRequestType);
               const hasExemptionFromBase = /إعفاء|اعفاء/.test(rawRequestType);
