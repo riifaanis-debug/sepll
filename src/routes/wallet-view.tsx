@@ -205,6 +205,14 @@ function displayValue(row: any, key: string, st: any, type?: ColType): string {
 
   if (!v) return "";
 
+  if (DATE_KEYS.has(key)) {
+    const d = parseAnyDate(v);
+    if (!d) return v;
+    const p = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  }
+
+
   if (type === "currency") {
     return formatMoney(v as any);
   }
