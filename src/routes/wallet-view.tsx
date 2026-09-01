@@ -427,12 +427,52 @@ function WalletViewPage() {
     });
   }, [viewRows, colFilters, states]);
 
-  const filtered = useMemo(() => {
-    const s = q.trim();
+  // distinct option lists for the toolbar filters
+  const optionsFor = (key: string, type?: ColType) => {
+    const set = new Set<string>();
+    for (const r of viewRows) {
+      const v = displayValue(r, key, states[rowKey(r)], type);
+      if (v) set.add(v);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "ar"));
+  };
 
-    if (!s) return colFiltered;
+  const productOptions = useMemo(() => optionsFor("نوع المنتج"), [viewRows, states]);
+  const reqTypeOptions = useMemo(() => optionsFor("نوع الطلب", "reqType"), [viewRows, states]);
+  const statusOptions = useMemo(() => optionsFor("حالة الطلب"), [viewRows, states]);
+
+  const fieldFiltered = useMemo(() => {
+    const anyActive =
+      productFilter !== "all" ||
+      reqTypeFilter !== "all" ||
+      statusFilter !== "all" ||
+      openFrom ||
+      openTo ||
+      freezeFrom ||
+      freezeTo;
+
+    if (!anyActive) return colFiltered;
 
     return colFiltered.filter((r) => {
+      const st = states[rowKey(r)];
+
+      if (productFilter !== "all" && displayValue(r, "نوع المنتج", st) !== productFilter) return false;
+      if (reqTypeFilter !== "all" && displayValue(r, "نوع الطلب", st, "reqType") !== reqTypeFilter)
+        return false;
+      if (statusFilter !== "all" && displayValue(r, "حالة الطلب", st) !== statusFilter) return false;
+      if (!inRange(rowDate(r, "تاريخ فتح الطلب", st), openFrom, openTo)) return false;
+      if (!inRange(rowDate(r, "تاريخ التجميد", st), freezeFrom, freezeTo)) return false;
+
+      return true;
+    });
+  }, [colFiltered, states, productFilter, reqTypeFilter, statusFilter, openFrom, openTo, freezeFrom, freezeTo]);
+
+  const searched = useMemo(() => {
+    const s = q.trim();
+
+    if (!s) return fieldFiltered;
+
+    return fieldFiltered.filter((r) => {
       const st = states[rowKey(r)];
 
       return activeColumns.some((c) => {
@@ -440,7 +480,48 @@ function WalletViewPage() {
         return v && v.includes(s);
       });
     });
-  }, [colFiltered, q, states, activeColumns]);
+  }, [fieldFiltered, q, states, activeColumns]);
+
+  // Real date sort (never mutates the source array).
+  const filtered = useMemo(() => {
+    if (sortDir !== "desc" && sortDir !== "asc") return searched;
+
+    return [...searched].sort((a, b) => {
+      const da = rowDate(a, "تاريخ فتح الطلب", states[rowKey(a)]);
+      const db = rowDate(b, "تاريخ فتح الطلب", states[rowKey(b)]);
+
+      if (!da && !db) return 0;
+      if (!da) return 1; // rows without a date always go last
+      if (!db) return -1;
+
+      return sortDir === "desc" ? db.getTime() - da.getTime() : da.getTime() - db.getTime();
+    });
+  }, [searched, sortDir, states]);
+
+  const totalAmount = useMemo(
+    () => filtered.reduce((sum, r) => sum + rowAmount(r, states[rowKey(r)]), 0),
+    [filtered, states],
+  );
+
+  const hasActiveFilters =
+    q.trim() !== "" ||
+    productFilter !== "all" ||
+    reqTypeFilter !== "all" ||
+    statusFilter !== "all" ||
+    Boolean(openFrom || openTo || freezeFrom || freezeTo) ||
+    Object.keys(colFilters).length > 0;
+
+  const clearFilters = () => {
+    setQ("");
+    setProductFilter("all");
+    setReqTypeFilter("all");
+    setStatusFilter("all");
+    setOpenFrom("");
+    setOpenTo("");
+    setFreezeFrom("");
+    setFreezeTo("");
+    setColFilters({});
+  };
 
   // Render in chunks — rendering thousands of rows at once freezes/crashes mobile browsers.
   const PAGE_SIZE = 100;
@@ -448,12 +529,13 @@ function WalletViewPage() {
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [q, view, colFilters, rows]);
+  }, [filtered]);
 
   const visibleRows = useMemo(
     () => filtered.slice(0, visibleCount),
     [filtered, visibleCount],
   );
+
 
 
 
