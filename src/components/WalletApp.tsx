@@ -407,11 +407,11 @@ export default function WalletApp() {
       const amt = Number(c["مبلغ المديونية"] ?? c["المبلغ"]) || 0;
       balance += amt;
 
-      const p = String(c["نوع المنتج"] ?? c["المنتج"] ?? "").toUpperCase();
-      if (p.includes("FR")) fr++;
-      else if (p.includes("PF")) pf++;
-      else if (p.includes("AL")) al++;
-      else if (p.includes("CC")) cc++;
+      const p = normalizeProduct(c["نوع المنتج"] ?? c["المنتج"]);
+      if (p === "RF") fr++;
+      else if (p === "PF") pf++;
+      else if (p === "AL") al++;
+      else if (p === "CC") cc++;
 
       if (isYes(c["عميل رواتب"])) salary++;
       if (isYes(c["عميل متوفي"])) death++;
