@@ -1008,12 +1008,8 @@ function CustomerSheet({
   const freezeOverride = (state?.edits as any)?.["تاريخ التجميد"] as string | undefined;
   const defaultDate: string = (freezeOverride && String(freezeOverride)) || computedFreeze;
 
-  const productRaw = String(customer?.["المنتج"] || "").toUpperCase();
-  const product: ProductType = productRaw.includes("AL")
-    ? "AL"
-    : productRaw.includes("CC")
-      ? "CC"
-      : "PF";
+  const productRaw = normalizeProduct(customer?.["المنتج"] ?? customer?.["نوع المنتج"]);
+  const product: ProductType = (productRaw || "PF") as ProductType;
   const caseStatus: CaseStatus =
     (state?.edits?.["رقم القضية"] ?? customer?.["رقم القضية"]) ? "with_case" : "no_case";
   const amount = Number(customer?.["المبلغ"]) || 0;
