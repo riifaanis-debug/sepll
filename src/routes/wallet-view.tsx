@@ -220,6 +220,55 @@ function displayValue(row: any, key: string, st: any, type?: ColType): string {
   return v;
 }
 
+// ---- date / money helpers (display-only, never mutate source rows) ----
+function parseAnyDate(v: any): Date | null {
+  if (v == null || v === "") return null;
+  if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+  const s = String(v).trim();
+  if (!s) return null;
+
+  let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  if (m) {
+    const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  m = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+  if (m) {
+    const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function rowDate(row: any, key: string, st: any): Date | null {
+  return parseAnyDate(effectiveValue(row, key, st, undefined));
+}
+
+function rowAmount(row: any, st: any): number {
+  const raw = effectiveValue(row, "مبلغ المديونية", st, undefined);
+  const n = Number(String(raw).replace(/[^\d.-]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function inRange(d: Date | null, from: string, to: string): boolean {
+  if (!from && !to) return true;
+  if (!d) return false;
+  const t = d.getTime();
+  if (from) {
+    const f = parseAnyDate(from);
+    if (f && t < f.getTime()) return false;
+  }
+  if (to) {
+    const e = parseAnyDate(to);
+    if (e && t > e.getTime() + 86399999) return false;
+  }
+  return true;
+}
+
+
 function getCollectorEmployeeId(row: any): string {
   return String(rawCellValue(row, "الرقم الوظيفي للمحصل") ?? "").trim();
 }
