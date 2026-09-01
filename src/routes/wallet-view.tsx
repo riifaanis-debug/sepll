@@ -87,7 +87,9 @@ type ColType = "currency" | "phone" | "yesno" | "editText" | "editNumber" | "edi
 const COLUMNS: { key: string; label: string; type?: ColType }[] = UNIFIED_COLUMNS.map((c) => ({
   key: c.key,
   label: c.label,
-  type: c.type === "text" ? undefined : (c.type as ColType),
+  // Imported wallet dates are read-only display values, not editable operational fields.
+  type: c.type === "text" || c.type === "date" ? undefined : (c.type as ColType),
+
 }));
 
 const MONEY_KEYS = new Set(["مبلغ المديونية", "أرصدة محجوزة", "السداد"]);
