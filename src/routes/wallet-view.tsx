@@ -577,10 +577,24 @@ function WalletViewPage() {
       </header>
 
       <main className="max-w-[1600px] mx-auto px-2 py-3 space-y-2">
-        <div className="flex items-center justify-end gap-3 flex-wrap">
-          <div className="text-xs font-bold text-[#133E35]">
-            عدد السجلات: {filtered.length.toLocaleString("en-US")}
-            {filtered.length !== viewRows.length && ` / ${viewRows.length.toLocaleString("en-US")}`}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-lg border bg-white p-2 text-center">
+            <div className="text-[10px] text-muted-foreground">إجمالي السجلات</div>
+            <div className="text-sm font-bold text-[#133E35] tabular-nums">
+              {viewRows.length.toLocaleString("en-US")}
+            </div>
+          </div>
+          <div className="rounded-lg border bg-white p-2 text-center">
+            <div className="text-[10px] text-muted-foreground">النتائج الحالية</div>
+            <div className="text-sm font-bold text-primary tabular-nums">
+              {filtered.length.toLocaleString("en-US")}
+            </div>
+          </div>
+          <div className="rounded-lg border bg-white p-2 text-center">
+            <div className="text-[10px] text-muted-foreground">إجمالي المديونية</div>
+            <div className="text-sm font-bold text-[#133E35] tabular-nums">
+              {formatCurrency(totalAmount)}
+            </div>
           </div>
         </div>
 
@@ -589,10 +603,94 @@ function WalletViewPage() {
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="بحث في كل الأعمدة..."
+            placeholder="بحث برقم الحساب أو الاسم أو الهوية أو الجوال أو رقم الطلب..."
             className="pr-9 h-9"
           />
         </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <Select value={productFilter} onValueChange={setProductFilter}>
+            <SelectTrigger className="h-9 text-xs">
+              <SelectValue placeholder="نوع المنتج" />
+            </SelectTrigger>
+            <SelectContent dir="rtl">
+              <SelectItem value="all">نوع المنتج: الكل</SelectItem>
+              {productOptions.map((o) => (
+                <SelectItem key={o} value={o}>
+                  {o}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={reqTypeFilter} onValueChange={setReqTypeFilter}>
+            <SelectTrigger className="h-9 text-xs">
+              <SelectValue placeholder="نوع الطلب" />
+            </SelectTrigger>
+            <SelectContent dir="rtl">
+              <SelectItem value="all">نوع الطلب: الكل</SelectItem>
+              {reqTypeOptions.map((o) => (
+                <SelectItem key={o} value={o}>
+                  {o}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="h-9 text-xs">
+              <SelectValue placeholder="حالة الطلب" />
+            </SelectTrigger>
+            <SelectContent dir="rtl">
+              <SelectItem value="all">حالة الطلب: الكل</SelectItem>
+              {statusOptions.map((o) => (
+                <SelectItem key={o} value={o}>
+                  {o}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={sortDir} onValueChange={setSortDir}>
+            <SelectTrigger className="h-9 text-xs">
+              <SelectValue placeholder="الترتيب" />
+            </SelectTrigger>
+            <SelectContent dir="rtl">
+              <SelectItem value="none">بدون ترتيب</SelectItem>
+              <SelectItem value="desc">تاريخ فتح الطلب: الأحدث أولاً</SelectItem>
+              <SelectItem value="asc">تاريخ فتح الطلب: الأقدم أولاً</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <label className="text-[10px] text-muted-foreground">
+            تاريخ فتح الطلب - من
+            <Input type="date" value={openFrom} onChange={(e) => setOpenFrom(e.target.value)} className="h-9 text-xs" />
+          </label>
+          <label className="text-[10px] text-muted-foreground">
+            تاريخ فتح الطلب - إلى
+            <Input type="date" value={openTo} onChange={(e) => setOpenTo(e.target.value)} className="h-9 text-xs" />
+          </label>
+          <label className="text-[10px] text-muted-foreground">
+            تاريخ التجميد - من
+            <Input type="date" value={freezeFrom} onChange={(e) => setFreezeFrom(e.target.value)} className="h-9 text-xs" />
+          </label>
+          <label className="text-[10px] text-muted-foreground">
+            تاريخ التجميد - إلى
+            <Input type="date" value={freezeTo} onChange={(e) => setFreezeTo(e.target.value)} className="h-9 text-xs" />
+          </label>
+        </div>
+
+        {hasActiveFilters && (
+          <div className="flex justify-end">
+            <Button variant="outline" size="sm" className="h-7 text-[11px] gap-1" onClick={clearFilters}>
+              <X className="size-3" />
+              مسح كل الفلاتر
+            </Button>
+          </div>
+        )}
+
 
         <div dir="ltr" className="border rounded-lg overflow-auto max-h-[calc(100vh-170px)] bg-white">
           {loading ? (
