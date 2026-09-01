@@ -319,11 +319,11 @@ const UNIFIED_TYPE: Record<string, FieldType> = {
   "اسم العميل": "text",
   "نوع المنتج": "product",
   "رقم الهوية": "id",
-  jWO_DT: "date",
+  "تاريخ التجميد": "date",
   "رقم الجوال": "phone",
   "تاريخ فتح الطلب": "date",
-  "تاريخ الإغلاق": "date",
 };
+
 
 const UNIFIED_FORBID: Record<string, string[]> = {
   "رقم الهوية": ["agent", "employee", "موظف", "محصل", "وظيفي", "مشرف", "supervisor"],

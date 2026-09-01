@@ -87,10 +87,14 @@ type ColType = "currency" | "phone" | "yesno" | "editText" | "editNumber" | "edi
 const COLUMNS: { key: string; label: string; type?: ColType }[] = UNIFIED_COLUMNS.map((c) => ({
   key: c.key,
   label: c.label,
-  type: c.type === "text" ? undefined : (c.type as ColType),
+  // Imported wallet dates are read-only display values, not editable operational fields.
+  type: c.type === "text" || c.type === "date" ? undefined : (c.type as ColType),
+
 }));
 
+const DATE_KEYS = new Set(["تاريخ التجميد", "تاريخ فتح الطلب"]);
 const MONEY_KEYS = new Set(["مبلغ المديونية", "أرصدة محجوزة", "السداد"]);
+
 const DASH_RE = /^(\s|[-—–_]+)*$/;
 const REQ_OPTIONS = ["إعفاء متوفين", "إعادة جدولة"] as const;
 
@@ -203,6 +207,14 @@ function displayValue(row: any, key: string, st: any, type?: ColType): string {
 
   if (!v) return "";
 
+  if (DATE_KEYS.has(key)) {
+    const d = parseAnyDate(v);
+    if (!d) return v;
+    const p = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  }
+
+
   if (type === "currency") {
     return formatMoney(v as any);
   }
@@ -219,6 +231,55 @@ function displayValue(row: any, key: string, st: any, type?: ColType): string {
 
   return v;
 }
+
+// ---- date / money helpers (display-only, never mutate source rows) ----
+function parseAnyDate(v: any): Date | null {
+  if (v == null || v === "") return null;
+  if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+  const s = String(v).trim();
+  if (!s) return null;
+
+  let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  if (m) {
+    const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  m = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+  if (m) {
+    const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function rowDate(row: any, key: string, st: any): Date | null {
+  return parseAnyDate(effectiveValue(row, key, st, undefined));
+}
+
+function rowAmount(row: any, st: any): number {
+  const raw = effectiveValue(row, "مبلغ المديونية", st, undefined);
+  const n = Number(String(raw).replace(/[^\d.-]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function inRange(d: Date | null, from: string, to: string): boolean {
+  if (!from && !to) return true;
+  if (!d) return false;
+  const t = d.getTime();
+  if (from) {
+    const f = parseAnyDate(from);
+    if (f && t < f.getTime()) return false;
+  }
+  if (to) {
+    const e = parseAnyDate(to);
+    if (e && t > e.getTime() + 86399999) return false;
+  }
+  return true;
+}
+
 
 function getCollectorEmployeeId(row: any): string {
   return String(rawCellValue(row, "الرقم الوظيفي للمحصل") ?? "").trim();
@@ -248,11 +309,51 @@ function WalletViewPage() {
   const { states, update } = useCustomerStates();
   const navigate = useNavigate();
 
+  const PREFS_KEY = `wallet-view-prefs:${view}`;
+  const initialPrefs = (() => {
+    if (typeof window === "undefined") return null;
+    try {
+      return JSON.parse(sessionStorage.getItem(PREFS_KEY) || "null");
+    } catch {
+      return null;
+    }
+  })();
+
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState<string>(initialPrefs?.q ?? "");
   const [colFilters, setColFilters] = useState<Record<string, Set<string>>>({});
+  const [productFilter, setProductFilter] = useState<string>(initialPrefs?.productFilter ?? "all");
+  const [reqTypeFilter, setReqTypeFilter] = useState<string>(initialPrefs?.reqTypeFilter ?? "all");
+  const [statusFilter, setStatusFilter] = useState<string>(initialPrefs?.statusFilter ?? "all");
+  const [openFrom, setOpenFrom] = useState<string>(initialPrefs?.openFrom ?? "");
+  const [openTo, setOpenTo] = useState<string>(initialPrefs?.openTo ?? "");
+  const [freezeFrom, setFreezeFrom] = useState<string>(initialPrefs?.freezeFrom ?? "");
+  const [freezeTo, setFreezeTo] = useState<string>(initialPrefs?.freezeTo ?? "");
+  const [sortDir, setSortDir] = useState<string>(initialPrefs?.sortDir ?? "none");
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        PREFS_KEY,
+        JSON.stringify({
+          q,
+          productFilter,
+          reqTypeFilter,
+          statusFilter,
+          openFrom,
+          openTo,
+          freezeFrom,
+          freezeTo,
+          sortDir,
+        }),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [PREFS_KEY, q, productFilter, reqTypeFilter, statusFilter, openFrom, openTo, freezeFrom, freezeTo, sortDir]);
+
 
   useEffect(() => {
     const session = getSession();
@@ -338,12 +439,52 @@ function WalletViewPage() {
     });
   }, [viewRows, colFilters, states]);
 
-  const filtered = useMemo(() => {
-    const s = q.trim();
+  // distinct option lists for the toolbar filters
+  const optionsFor = (key: string, type?: ColType) => {
+    const set = new Set<string>();
+    for (const r of viewRows) {
+      const v = displayValue(r, key, states[rowKey(r)], type);
+      if (v) set.add(v);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "ar"));
+  };
 
-    if (!s) return colFiltered;
+  const productOptions = useMemo(() => optionsFor("نوع المنتج"), [viewRows, states]);
+  const reqTypeOptions = useMemo(() => optionsFor("نوع الطلب", "reqType"), [viewRows, states]);
+  const statusOptions = useMemo(() => optionsFor("حالة الطلب"), [viewRows, states]);
+
+  const fieldFiltered = useMemo(() => {
+    const anyActive =
+      productFilter !== "all" ||
+      reqTypeFilter !== "all" ||
+      statusFilter !== "all" ||
+      openFrom ||
+      openTo ||
+      freezeFrom ||
+      freezeTo;
+
+    if (!anyActive) return colFiltered;
 
     return colFiltered.filter((r) => {
+      const st = states[rowKey(r)];
+
+      if (productFilter !== "all" && displayValue(r, "نوع المنتج", st) !== productFilter) return false;
+      if (reqTypeFilter !== "all" && displayValue(r, "نوع الطلب", st, "reqType") !== reqTypeFilter)
+        return false;
+      if (statusFilter !== "all" && displayValue(r, "حالة الطلب", st) !== statusFilter) return false;
+      if (!inRange(rowDate(r, "تاريخ فتح الطلب", st), openFrom, openTo)) return false;
+      if (!inRange(rowDate(r, "تاريخ التجميد", st), freezeFrom, freezeTo)) return false;
+
+      return true;
+    });
+  }, [colFiltered, states, productFilter, reqTypeFilter, statusFilter, openFrom, openTo, freezeFrom, freezeTo]);
+
+  const searched = useMemo(() => {
+    const s = q.trim();
+
+    if (!s) return fieldFiltered;
+
+    return fieldFiltered.filter((r) => {
       const st = states[rowKey(r)];
 
       return activeColumns.some((c) => {
@@ -351,7 +492,48 @@ function WalletViewPage() {
         return v && v.includes(s);
       });
     });
-  }, [colFiltered, q, states, activeColumns]);
+  }, [fieldFiltered, q, states, activeColumns]);
+
+  // Real date sort (never mutates the source array).
+  const filtered = useMemo(() => {
+    if (sortDir !== "desc" && sortDir !== "asc") return searched;
+
+    return [...searched].sort((a, b) => {
+      const da = rowDate(a, "تاريخ فتح الطلب", states[rowKey(a)]);
+      const db = rowDate(b, "تاريخ فتح الطلب", states[rowKey(b)]);
+
+      if (!da && !db) return 0;
+      if (!da) return 1; // rows without a date always go last
+      if (!db) return -1;
+
+      return sortDir === "desc" ? db.getTime() - da.getTime() : da.getTime() - db.getTime();
+    });
+  }, [searched, sortDir, states]);
+
+  const totalAmount = useMemo(
+    () => filtered.reduce((sum, r) => sum + rowAmount(r, states[rowKey(r)]), 0),
+    [filtered, states],
+  );
+
+  const hasActiveFilters =
+    q.trim() !== "" ||
+    productFilter !== "all" ||
+    reqTypeFilter !== "all" ||
+    statusFilter !== "all" ||
+    Boolean(openFrom || openTo || freezeFrom || freezeTo) ||
+    Object.keys(colFilters).length > 0;
+
+  const clearFilters = () => {
+    setQ("");
+    setProductFilter("all");
+    setReqTypeFilter("all");
+    setStatusFilter("all");
+    setOpenFrom("");
+    setOpenTo("");
+    setFreezeFrom("");
+    setFreezeTo("");
+    setColFilters({});
+  };
 
   // Render in chunks — rendering thousands of rows at once freezes/crashes mobile browsers.
   const PAGE_SIZE = 100;
@@ -359,12 +541,13 @@ function WalletViewPage() {
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [q, view, colFilters, rows]);
+  }, [filtered]);
 
   const visibleRows = useMemo(
     () => filtered.slice(0, visibleCount),
     [filtered, visibleCount],
   );
+
 
 
 
@@ -406,10 +589,24 @@ function WalletViewPage() {
       </header>
 
       <main className="max-w-[1600px] mx-auto px-2 py-3 space-y-2">
-        <div className="flex items-center justify-end gap-3 flex-wrap">
-          <div className="text-xs font-bold text-[#133E35]">
-            عدد السجلات: {filtered.length.toLocaleString("en-US")}
-            {filtered.length !== viewRows.length && ` / ${viewRows.length.toLocaleString("en-US")}`}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-lg border bg-white p-2 text-center">
+            <div className="text-[10px] text-muted-foreground">إجمالي السجلات</div>
+            <div className="text-sm font-bold text-[#133E35] tabular-nums">
+              {viewRows.length.toLocaleString("en-US")}
+            </div>
+          </div>
+          <div className="rounded-lg border bg-white p-2 text-center">
+            <div className="text-[10px] text-muted-foreground">النتائج الحالية</div>
+            <div className="text-sm font-bold text-primary tabular-nums">
+              {filtered.length.toLocaleString("en-US")}
+            </div>
+          </div>
+          <div className="rounded-lg border bg-white p-2 text-center">
+            <div className="text-[10px] text-muted-foreground">إجمالي المديونية</div>
+            <div className="text-sm font-bold text-[#133E35] tabular-nums">
+              {formatCurrency(totalAmount)}
+            </div>
           </div>
         </div>
 
@@ -418,10 +615,94 @@ function WalletViewPage() {
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="بحث في كل الأعمدة..."
+            placeholder="بحث برقم الحساب أو الاسم أو الهوية أو الجوال أو رقم الطلب..."
             className="pr-9 h-9"
           />
         </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <Select value={productFilter} onValueChange={setProductFilter}>
+            <SelectTrigger className="h-9 text-xs">
+              <SelectValue placeholder="نوع المنتج" />
+            </SelectTrigger>
+            <SelectContent dir="rtl">
+              <SelectItem value="all">نوع المنتج: الكل</SelectItem>
+              {productOptions.map((o) => (
+                <SelectItem key={o} value={o}>
+                  {o}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={reqTypeFilter} onValueChange={setReqTypeFilter}>
+            <SelectTrigger className="h-9 text-xs">
+              <SelectValue placeholder="نوع الطلب" />
+            </SelectTrigger>
+            <SelectContent dir="rtl">
+              <SelectItem value="all">نوع الطلب: الكل</SelectItem>
+              {reqTypeOptions.map((o) => (
+                <SelectItem key={o} value={o}>
+                  {o}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="h-9 text-xs">
+              <SelectValue placeholder="حالة الطلب" />
+            </SelectTrigger>
+            <SelectContent dir="rtl">
+              <SelectItem value="all">حالة الطلب: الكل</SelectItem>
+              {statusOptions.map((o) => (
+                <SelectItem key={o} value={o}>
+                  {o}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={sortDir} onValueChange={setSortDir}>
+            <SelectTrigger className="h-9 text-xs">
+              <SelectValue placeholder="الترتيب" />
+            </SelectTrigger>
+            <SelectContent dir="rtl">
+              <SelectItem value="none">بدون ترتيب</SelectItem>
+              <SelectItem value="desc">تاريخ فتح الطلب: الأحدث أولاً</SelectItem>
+              <SelectItem value="asc">تاريخ فتح الطلب: الأقدم أولاً</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <label className="text-[10px] text-muted-foreground">
+            تاريخ فتح الطلب - من
+            <Input type="date" value={openFrom} onChange={(e) => setOpenFrom(e.target.value)} className="h-9 text-xs" />
+          </label>
+          <label className="text-[10px] text-muted-foreground">
+            تاريخ فتح الطلب - إلى
+            <Input type="date" value={openTo} onChange={(e) => setOpenTo(e.target.value)} className="h-9 text-xs" />
+          </label>
+          <label className="text-[10px] text-muted-foreground">
+            تاريخ التجميد - من
+            <Input type="date" value={freezeFrom} onChange={(e) => setFreezeFrom(e.target.value)} className="h-9 text-xs" />
+          </label>
+          <label className="text-[10px] text-muted-foreground">
+            تاريخ التجميد - إلى
+            <Input type="date" value={freezeTo} onChange={(e) => setFreezeTo(e.target.value)} className="h-9 text-xs" />
+          </label>
+        </div>
+
+        {hasActiveFilters && (
+          <div className="flex justify-end">
+            <Button variant="outline" size="sm" className="h-7 text-[11px] gap-1" onClick={clearFilters}>
+              <X className="size-3" />
+              مسح كل الفلاتر
+            </Button>
+          </div>
+        )}
+
 
         <div dir="ltr" className="border rounded-lg overflow-auto max-h-[calc(100vh-170px)] bg-white">
           {loading ? (

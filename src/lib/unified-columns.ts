@@ -62,10 +62,10 @@ export const UNIFIED_COLUMNS: UnifiedColumn[] = [
     aliases: ["رقم الهوية", "رقم الهويه", "CUST_ID_NO", "National ID", "ID Number", "السجل المدني", "هوية"],
   },
   {
-    key: "jWO_DT",
-    label: "jWO_DT",
-    type: "text",
-    aliases: ["jWO_DT", "jWO-DT", "JWO_DT", "JWO-DT", "jwodt"],
+    key: "تاريخ التجميد",
+    label: "تاريخ التجميد",
+    type: "date",
+    aliases: ["تاريخ التجميد", "jWO_DT", "jWO-DT", "JWO_DT", "JWO-DT", "jwodt", "WO_DT", "Write Off Date", "تاريخ الشطب"],
   },
   {
     key: "رقم الجوال",
@@ -101,22 +101,10 @@ export const UNIFIED_COLUMNS: UnifiedColumn[] = [
     aliases: ["حالة الطلب", "حاله الطلب", "Request Status", "Status", "تصنيف الطلب"],
   },
   {
-    key: "حالة الطلب الفرعية",
-    label: "حالة الطلب الفرعية",
-    type: "text",
-    aliases: ["حالة الطلب الفرعية", "حاله الطلب الفرعيه", "Sub Status", "SubStatus", "الحالة الفرعية"],
-  },
-  {
     key: "تاريخ فتح الطلب",
     label: "تاريخ فتح الطلب",
     type: "date",
     aliases: ["تاريخ فتح الطلب", "Open Date", "Created Date", "تاريخ الطلب"],
-  },
-  {
-    key: "تاريخ الإغلاق",
-    label: "تاريخ الإغلاق",
-    type: "date",
-    aliases: ["تاريخ الإغلاق", "تاريخ الاغلاق", "Close Date", "Closed Date", "تاريخ الاقفال"],
   },
   {
     key: "الوصف",
@@ -125,6 +113,7 @@ export const UNIFIED_COLUMNS: UnifiedColumn[] = [
     aliases: ["الوصف", "Description", "Desc", "تفاصيل", "ملخص"],
   },
 ];
+
 
 export const UNIFIED_KEYS = UNIFIED_COLUMNS.map((c) => c.key);
 
