@@ -92,7 +92,9 @@ const COLUMNS: { key: string; label: string; type?: ColType }[] = UNIFIED_COLUMN
 
 }));
 
+const DATE_KEYS = new Set(["تاريخ التجميد", "تاريخ فتح الطلب"]);
 const MONEY_KEYS = new Set(["مبلغ المديونية", "أرصدة محجوزة", "السداد"]);
+
 const DASH_RE = /^(\s|[-—–_]+)*$/;
 const REQ_OPTIONS = ["إعفاء متوفين", "إعادة جدولة"] as const;
 
