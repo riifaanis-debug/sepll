@@ -34,6 +34,7 @@ import {
   isExemptionRequest,
   isRescheduleRequest,
   normalizeReqType,
+  normalizeProduct,
 } from "@/lib/wallet-predicates";
 
 const WALLET_VIEW_FILTERS = [
