@@ -81,6 +81,7 @@ import {
   isPromise,
   isExemptionRequest,
   isRescheduleRequest,
+  normalizeProduct,
 } from "@/lib/wallet-predicates";
 import {
   Dialog,
