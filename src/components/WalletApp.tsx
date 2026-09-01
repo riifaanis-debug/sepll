@@ -676,6 +676,7 @@ export default function WalletApp() {
                 <SelectItem value="all">الكل</SelectItem>
                 {filterType === "product" ? (
                   <>
+                    <SelectItem value="RF">RF</SelectItem>
                     <SelectItem value="PF">PF</SelectItem>
                     <SelectItem value="AL">AL</SelectItem>
                     <SelectItem value="CC">CC</SelectItem>
