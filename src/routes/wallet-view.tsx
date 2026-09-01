@@ -297,11 +297,51 @@ function WalletViewPage() {
   const { states, update } = useCustomerStates();
   const navigate = useNavigate();
 
+  const PREFS_KEY = `wallet-view-prefs:${view}`;
+  const initialPrefs = (() => {
+    if (typeof window === "undefined") return null;
+    try {
+      return JSON.parse(sessionStorage.getItem(PREFS_KEY) || "null");
+    } catch {
+      return null;
+    }
+  })();
+
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState<string>(initialPrefs?.q ?? "");
   const [colFilters, setColFilters] = useState<Record<string, Set<string>>>({});
+  const [productFilter, setProductFilter] = useState<string>(initialPrefs?.productFilter ?? "all");
+  const [reqTypeFilter, setReqTypeFilter] = useState<string>(initialPrefs?.reqTypeFilter ?? "all");
+  const [statusFilter, setStatusFilter] = useState<string>(initialPrefs?.statusFilter ?? "all");
+  const [openFrom, setOpenFrom] = useState<string>(initialPrefs?.openFrom ?? "");
+  const [openTo, setOpenTo] = useState<string>(initialPrefs?.openTo ?? "");
+  const [freezeFrom, setFreezeFrom] = useState<string>(initialPrefs?.freezeFrom ?? "");
+  const [freezeTo, setFreezeTo] = useState<string>(initialPrefs?.freezeTo ?? "");
+  const [sortDir, setSortDir] = useState<string>(initialPrefs?.sortDir ?? "none");
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        PREFS_KEY,
+        JSON.stringify({
+          q,
+          productFilter,
+          reqTypeFilter,
+          statusFilter,
+          openFrom,
+          openTo,
+          freezeFrom,
+          freezeTo,
+          sortDir,
+        }),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [PREFS_KEY, q, productFilter, reqTypeFilter, statusFilter, openFrom, openTo, freezeFrom, freezeTo, sortDir]);
+
 
   useEffect(() => {
     const session = getSession();
