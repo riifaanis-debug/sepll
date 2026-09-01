@@ -259,7 +259,11 @@ export default function WalletApp() {
   const products = useMemo(
     () =>
       Array.from(
-        new Set(customers.map((c) => c["نوع المنتج"] ?? c["المنتج"]).filter(Boolean)),
+        new Set(
+          customers
+            .map((c) => normalizeProduct(c["نوع المنتج"] ?? c["المنتج"]))
+            .filter(Boolean),
+        ),
       ) as string[],
     [customers],
   );
