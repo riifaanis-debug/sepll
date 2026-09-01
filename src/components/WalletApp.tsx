@@ -81,6 +81,7 @@ import {
   isPromise,
   isExemptionRequest,
   isRescheduleRequest,
+  normalizeProduct,
 } from "@/lib/wallet-predicates";
 import {
   Dialog,
@@ -258,7 +259,11 @@ export default function WalletApp() {
   const products = useMemo(
     () =>
       Array.from(
-        new Set(customers.map((c) => c["نوع المنتج"] ?? c["المنتج"]).filter(Boolean)),
+        new Set(
+          customers
+            .map((c) => normalizeProduct(c["نوع المنتج"] ?? c["المنتج"]))
+            .filter(Boolean),
+        ),
       ) as string[],
     [customers],
   );
@@ -278,8 +283,8 @@ export default function WalletApp() {
       .filter((c) => {
         if (filterValue !== "all") {
           if (filterType === "product") {
-            const p = String(c["نوع المنتج"] ?? c["المنتج"] ?? "").toUpperCase();
-            if (!p.includes(filterValue)) return false;
+            const p = normalizeProduct(c["نوع المنتج"] ?? c["المنتج"]);
+            if (p !== filterValue) return false;
           } else if (filterType === "salary") {
             const yes = isYes(c["عميل رواتب"]);
             if (filterValue === "yes" && !yes) return false;
@@ -329,11 +334,11 @@ export default function WalletApp() {
       const amt = Number(c["مبلغ المديونية"] ?? c["المبلغ"]) || 0;
       total += amt;
 
-      const p = String(c["نوع المنتج"] ?? c["المنتج"] ?? "").toUpperCase();
-      if (p.includes("FR")) fr++;
-      else if (p.includes("PF")) pf++;
-      else if (p.includes("AL")) al++;
-      else if (p.includes("CC")) cc++;
+      const p = normalizeProduct(c["نوع المنتج"] ?? c["المنتج"]);
+      if (p === "RF") fr++;
+      else if (p === "PF") pf++;
+      else if (p === "AL") al++;
+      else if (p === "CC") cc++;
 
       if (isYes(c["عميل رواتب"])) salary++;
       if (isYes(c["عميل متوفي"])) death++;
@@ -402,11 +407,11 @@ export default function WalletApp() {
       const amt = Number(c["مبلغ المديونية"] ?? c["المبلغ"]) || 0;
       balance += amt;
 
-      const p = String(c["نوع المنتج"] ?? c["المنتج"] ?? "").toUpperCase();
-      if (p.includes("FR")) fr++;
-      else if (p.includes("PF")) pf++;
-      else if (p.includes("AL")) al++;
-      else if (p.includes("CC")) cc++;
+      const p = normalizeProduct(c["نوع المنتج"] ?? c["المنتج"]);
+      if (p === "RF") fr++;
+      else if (p === "PF") pf++;
+      else if (p === "AL") al++;
+      else if (p === "CC") cc++;
 
       if (isYes(c["عميل رواتب"])) salary++;
       if (isYes(c["عميل متوفي"])) death++;
@@ -671,6 +676,7 @@ export default function WalletApp() {
                 <SelectItem value="all">الكل</SelectItem>
                 {filterType === "product" ? (
                   <>
+                    <SelectItem value="RF">RF</SelectItem>
                     <SelectItem value="PF">PF</SelectItem>
                     <SelectItem value="AL">AL</SelectItem>
                     <SelectItem value="CC">CC</SelectItem>
@@ -1002,12 +1008,8 @@ function CustomerSheet({
   const freezeOverride = (state?.edits as any)?.["تاريخ التجميد"] as string | undefined;
   const defaultDate: string = (freezeOverride && String(freezeOverride)) || computedFreeze;
 
-  const productRaw = String(customer?.["المنتج"] || "").toUpperCase();
-  const product: ProductType = productRaw.includes("AL")
-    ? "AL"
-    : productRaw.includes("CC")
-      ? "CC"
-      : "PF";
+  const productRaw = normalizeProduct(customer?.["المنتج"] ?? customer?.["نوع المنتج"]);
+  const product: ProductType = (productRaw || "PF") as ProductType;
   const caseStatus: CaseStatus =
     (state?.edits?.["رقم القضية"] ?? customer?.["رقم القضية"]) ? "with_case" : "no_case";
   const amount = Number(customer?.["المبلغ"]) || 0;

@@ -34,6 +34,7 @@ import {
   isExemptionRequest,
   isRescheduleRequest,
   normalizeReqType,
+  normalizeProduct,
 } from "@/lib/wallet-predicates";
 
 const WALLET_VIEW_FILTERS = [
@@ -206,6 +207,10 @@ function displayValue(row: any, key: string, st: any, type?: ColType): string {
   const v = effectiveValue(row, key, st, type);
 
   if (!v) return "";
+
+  if (key === "نوع المنتج") {
+    return normalizeProduct(v);
+  }
 
   if (DATE_KEYS.has(key)) {
     const d = parseAnyDate(v);
