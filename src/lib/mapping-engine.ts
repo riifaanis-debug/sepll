@@ -4,6 +4,7 @@ import {
   type FieldDef,
   type FieldType,
 } from "./canonical-schema";
+import { normalizeProduct } from "./wallet-predicates";
 
 // ---------- Header normalization ----------
 export function normalizeHeader(s: unknown): string {
