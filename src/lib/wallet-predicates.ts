@@ -60,6 +60,27 @@ export function isPromise(action: unknown): boolean {
   return clean(action) === "وعد سداد";
 }
 
+/** Collapse any product-type variant into one of the four canonical codes. */
+export function normalizeProduct(v: unknown): "RF" | "PF" | "AL" | "CC" | "" {
+  const s = normalizeArabic(v).toUpperCase();
+  if (!s || NULL_TOKENS.has(s.toLowerCase())) return "";
+
+  // Exact / code matches first
+  if (s === "RF" || s.includes("RF")) return "RF";
+  if (s === "PF" || s.includes("PF")) return "PF";
+  if (s === "AL" || s.includes("AL")) return "AL";
+  if (s === "CC" || s.includes("CC")) return "CC";
+
+  // Arabic long names
+  if (s.includes("عقار") || s.includes("عقاري") || s.includes("REAL") || s.includes("MORTGAGE")) return "RF";
+  if (s.includes("شخص") || s.includes("PERSONAL") || s.includes("CONSUMER")) return "PF";
+  if (s.includes("سيار") || s.includes("تأجير") || s.includes("AUTO") || s.includes("LEASE")) return "AL";
+  if (s.includes("بطاق") || s.includes("ائتم") || s.includes("CREDIT") || s.includes("CARD")) return "CC";
+
+  // Unrecognized value — keep as-is so data is not silently altered.
+  return clean(v).toUpperCase() as any;
+}
+
 /** Match a row to the current collector by BOTH employee id AND name. */
 export function isOwnedByCollector(
   agentEmployeeId: unknown,
