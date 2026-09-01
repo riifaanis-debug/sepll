@@ -208,6 +208,10 @@ function displayValue(row: any, key: string, st: any, type?: ColType): string {
 
   if (!v) return "";
 
+  if (key === "نوع المنتج") {
+    return normalizeProduct(v);
+  }
+
   if (DATE_KEYS.has(key)) {
     const d = parseAnyDate(v);
     if (!d) return v;
