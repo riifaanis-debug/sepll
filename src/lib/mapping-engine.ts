@@ -90,11 +90,10 @@ export function normalizeCell(value: unknown, type: FieldType): string | number 
       return isNaN(d.getTime()) ? String(v) : d.toISOString().slice(0, 10);
     }
     case "product": {
-      const s = String(v).toUpperCase();
-      if (s.includes("PF") || s.includes("شخص")) return "PF";
-      if (s.includes("AL") || s.includes("سيار")) return "AL";
-      if (s.includes("CC") || s.includes("ائتم") || s.includes("بطاق")) return "CC";
-      return s;
+      const normalized = normalizeProduct(v);
+      // normalizeProduct returns "" for empty values; preserve the original
+      // uppercase string for unrecognized values instead of coercing to empty.
+      return normalized || String(v).toUpperCase();
     }
     default:
       return String(v);
