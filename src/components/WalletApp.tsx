@@ -283,8 +283,8 @@ export default function WalletApp() {
       .filter((c) => {
         if (filterValue !== "all") {
           if (filterType === "product") {
-            const p = String(c["نوع المنتج"] ?? c["المنتج"] ?? "").toUpperCase();
-            if (!p.includes(filterValue)) return false;
+            const p = normalizeProduct(c["نوع المنتج"] ?? c["المنتج"]);
+            if (p !== filterValue) return false;
           } else if (filterType === "salary") {
             const yes = isYes(c["عميل رواتب"]);
             if (filterValue === "yes" && !yes) return false;
