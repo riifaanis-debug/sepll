@@ -74,7 +74,7 @@ export function normalizeProduct(v: unknown): "RF" | "PF" | "AL" | "CC" | "" {
   // Arabic long names
   if (s.includes("عقار") || s.includes("عقاري") || s.includes("REAL") || s.includes("MORTGAGE")) return "RF";
   if (s.includes("شخص") || s.includes("PERSONAL") || s.includes("CONSUMER")) return "PF";
-  if (s.includes("سيار") || s.includes("تأجير") || s.includes("AUTO") || s.includes("LEASE")) return "AL";
+  if (s.includes("سيار") || s.includes("تاجير") || s.includes("AUTO") || s.includes("LEASE")) return "AL";
   if (s.includes("بطاق") || s.includes("ائتم") || s.includes("CREDIT") || s.includes("CARD")) return "CC";
 
   // Unrecognized value — keep as-is so data is not silently altered.

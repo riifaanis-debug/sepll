@@ -9,61 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WhatsappTemplatesRouteImport } from './routes/whatsapp-templates'
-import { Route as WalletViewRouteImport } from './routes/wallet-view'
-import { Route as ThirdPartyRouteImport } from './routes/third-party'
-import { Route as RfWalletRouteImport } from './routes/rf-wallet'
-import { Route as MailRouteImport } from './routes/mail'
-import { Route as LookupRouteImport } from './routes/lookup'
-import { Route as DiscountCardRouteImport } from './routes/discount-card'
-import { Route as CollectedRouteImport } from './routes/collected'
-import { Route as CalculatorRouteImport } from './routes/calculator'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CalculatorRouteImport } from './routes/calculator'
+import { Route as CollectedRouteImport } from './routes/collected'
+import { Route as DiscountCardRouteImport } from './routes/discount-card'
+import { Route as LookupRouteImport } from './routes/lookup'
+import { Route as MailRouteImport } from './routes/mail'
+import { Route as RfWalletRouteImport } from './routes/rf-wallet'
+import { Route as ThirdPartyRouteImport } from './routes/third-party'
+import { Route as WalletViewRouteImport } from './routes/wallet-view'
+import { Route as WhatsappTemplatesRouteImport } from './routes/whatsapp-templates'
 
-const WhatsappTemplatesRoute = WhatsappTemplatesRouteImport.update({
-  id: '/whatsapp-templates',
-  path: '/whatsapp-templates',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const WalletViewRoute = WalletViewRouteImport.update({
-  id: '/wallet-view',
-  path: '/wallet-view',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ThirdPartyRoute = ThirdPartyRouteImport.update({
-  id: '/third-party',
-  path: '/third-party',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RfWalletRoute = RfWalletRouteImport.update({
-  id: '/rf-wallet',
-  path: '/rf-wallet',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MailRoute = MailRouteImport.update({
-  id: '/mail',
-  path: '/mail',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LookupRoute = LookupRouteImport.update({
-  id: '/lookup',
-  path: '/lookup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DiscountCardRoute = DiscountCardRouteImport.update({
-  id: '/discount-card',
-  path: '/discount-card',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CollectedRoute = CollectedRouteImport.update({
-  id: '/collected',
-  path: '/collected',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CalculatorRoute = CalculatorRouteImport.update({
-  id: '/calculator',
-  path: '/calculator',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -71,9 +31,49 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const CalculatorRoute = CalculatorRouteImport.update({
+  id: '/calculator',
+  path: '/calculator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectedRoute = CollectedRouteImport.update({
+  id: '/collected',
+  path: '/collected',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiscountCardRoute = DiscountCardRouteImport.update({
+  id: '/discount-card',
+  path: '/discount-card',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LookupRoute = LookupRouteImport.update({
+  id: '/lookup',
+  path: '/lookup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MailRoute = MailRouteImport.update({
+  id: '/mail',
+  path: '/mail',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RfWalletRoute = RfWalletRouteImport.update({
+  id: '/rf-wallet',
+  path: '/rf-wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThirdPartyRoute = ThirdPartyRouteImport.update({
+  id: '/third-party',
+  path: '/third-party',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WalletViewRoute = WalletViewRouteImport.update({
+  id: '/wallet-view',
+  path: '/wallet-view',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WhatsappTemplatesRoute = WhatsappTemplatesRouteImport.update({
+  id: '/whatsapp-templates',
+  path: '/whatsapp-templates',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -175,67 +175,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/whatsapp-templates': {
-      id: '/whatsapp-templates'
-      path: '/whatsapp-templates'
-      fullPath: '/whatsapp-templates'
-      preLoaderRoute: typeof WhatsappTemplatesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/wallet-view': {
-      id: '/wallet-view'
-      path: '/wallet-view'
-      fullPath: '/wallet-view'
-      preLoaderRoute: typeof WalletViewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/third-party': {
-      id: '/third-party'
-      path: '/third-party'
-      fullPath: '/third-party'
-      preLoaderRoute: typeof ThirdPartyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rf-wallet': {
-      id: '/rf-wallet'
-      path: '/rf-wallet'
-      fullPath: '/rf-wallet'
-      preLoaderRoute: typeof RfWalletRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mail': {
-      id: '/mail'
-      path: '/mail'
-      fullPath: '/mail'
-      preLoaderRoute: typeof MailRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lookup': {
-      id: '/lookup'
-      path: '/lookup'
-      fullPath: '/lookup'
-      preLoaderRoute: typeof LookupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/discount-card': {
-      id: '/discount-card'
-      path: '/discount-card'
-      fullPath: '/discount-card'
-      preLoaderRoute: typeof DiscountCardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/collected': {
-      id: '/collected'
-      path: '/collected'
-      fullPath: '/collected'
-      preLoaderRoute: typeof CollectedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/calculator': {
-      id: '/calculator'
-      path: '/calculator'
-      fullPath: '/calculator'
-      preLoaderRoute: typeof CalculatorRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -245,11 +189,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/calculator': {
+      id: '/calculator'
+      path: '/calculator'
+      fullPath: '/calculator'
+      preLoaderRoute: typeof CalculatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collected': {
+      id: '/collected'
+      path: '/collected'
+      fullPath: '/collected'
+      preLoaderRoute: typeof CollectedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/discount-card': {
+      id: '/discount-card'
+      path: '/discount-card'
+      fullPath: '/discount-card'
+      preLoaderRoute: typeof DiscountCardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lookup': {
+      id: '/lookup'
+      path: '/lookup'
+      fullPath: '/lookup'
+      preLoaderRoute: typeof LookupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mail': {
+      id: '/mail'
+      path: '/mail'
+      fullPath: '/mail'
+      preLoaderRoute: typeof MailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rf-wallet': {
+      id: '/rf-wallet'
+      path: '/rf-wallet'
+      fullPath: '/rf-wallet'
+      preLoaderRoute: typeof RfWalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/third-party': {
+      id: '/third-party'
+      path: '/third-party'
+      fullPath: '/third-party'
+      preLoaderRoute: typeof ThirdPartyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wallet-view': {
+      id: '/wallet-view'
+      path: '/wallet-view'
+      fullPath: '/wallet-view'
+      preLoaderRoute: typeof WalletViewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/whatsapp-templates': {
+      id: '/whatsapp-templates'
+      path: '/whatsapp-templates'
+      fullPath: '/whatsapp-templates'
+      preLoaderRoute: typeof WhatsappTemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
